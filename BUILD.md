@@ -4,20 +4,45 @@
 
 Node.js 18 이상이 필요합니다. 없으면 https://nodejs.org 에서 설치하십시오.
 
+### 배포본만 만들 경우 — 권장
+
 ```bash
 cd choflix-prompter-web
+npm install --ignore-scripts
+```
+
+`--ignore-scripts` 는 **Mac 용 Electron 실행 파일을 내려받지 않습니다.**
+Windows 배포본을 만드는 데는 필요 없는 파일이고, 이 파일이 macOS 의 보안 검사에
+걸리는 경우가 있어 아예 두지 않는 편이 깔끔합니다.
+
+Windows 용 Electron 은 빌드할 때 따로 내려받으므로 이 상태로도 배포본이 만들어집니다.
+
+### Mac 에서 실행해 보려면
+
+```bash
 npm install
 ```
 
-`node_modules` 가 만들어지며 200MB 정도 받습니다. 인터넷이 필요한 유일한 단계입니다.
+이때 macOS 가 `Electron.app` 을 **악성 코드로 판단해 휴지통으로 옮기는 경우**가 있습니다.
+Electron 실행 파일은 서명은 되어 있으나 공증(notarization)은 되어 있지 않아 생기는 일로 알려져 있습니다.
 
-## 2. 실행해 보기
+우선 다음을 확인하십시오.
+
+- `npm` 이 공식 저장소(`registry.npmjs.org`)를 보고 있는지 — `npm config get registry`
+- 사내 프록시나 미러를 거치고 있지 않은지
+
+확인 후에도 계속 막힌다면, 굳이 Mac 에서 실행할 이유가 없다면
+위의 `--ignore-scripts` 방식으로 두고 **Windows PC 에서 확인**하시는 편이 낫습니다.
+어차피 실사용 환경이 Windows 입니다.
+
+## 2. 실행해 보기 (선택)
 
 ```bash
 npm start
 ```
 
-Mac 에서도 그대로 동작합니다. 기능 확인은 여기서 하시는 게 빠릅니다.
+`--ignore-scripts` 로 설치하셨다면 이 명령은 동작하지 않습니다.
+Windows 배포본을 만들어 프롬프터 PC 에서 확인하십시오.
 
 ## 3. Windows 배포본 만들기
 

@@ -9,10 +9,11 @@
     "start": "electron .",
     "build:win": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --out=dist --overwrite --asar",
     "build:mac": "electron-packager . ChoflixPrompter --platform=darwin --arch=arm64 --out=dist --overwrite --asar",
-    "build:win:icon": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --asar --app-version=3.0.0 --win32metadata.CompanyName=CHOFLIX --win32metadata.FileDescription=\"CHOFLIX PROMPTER\""
+    "build:win:icon": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --asar --app-version=3.0.0 --win32metadata.CompanyName=CHOFLIX --win32metadata.FileDescription=\"CHOFLIX PROMPTER\"",
+    "install:buildonly": "npm install --ignore-scripts"
   },
   "devDependencies": {
-    "electron": "^31.0.0",
+    "electron": "^33.0.0",
     "electron-packager": "^17.1.2"
   }
 }

@@ -28,7 +28,25 @@ npm run build:win
 `dist/ChoflixPrompter-win32-x64/` 폴더가 만들어집니다.
 
 > Mac 에서 Windows 배포본을 만들 수 있습니다.
-> Electron 의 Windows 실행 파일을 내려받아 앱 파일을 얹는 방식이라 Wine 같은 것이 필요 없습니다.
+> Electron 의 Windows 실행 파일을 내려받아 앱 파일을 얹는 방식입니다.
+
+### exe 파일 아이콘까지 넣으려면
+
+`.exe` 안에 아이콘과 버전 정보를 심는 작업은 Windows 실행 파일의 리소스를 고쳐 쓰는 일이라,
+Mac 에서 하려면 **Wine** 이 필요합니다.
+
+```bash
+brew install --cask wine-stable
+npm run build:win:icon
+```
+
+**대부분의 경우 필요 없습니다.** 아이콘을 심지 않아도
+프로그램을 실행하면 **작업표시줄과 창 제목에는 C 아이콘이 제대로 나옵니다.**
+`build/app.ico` 를 창 아이콘으로 지정해 두었기 때문입니다.
+탐색기에서 `.exe` 파일을 볼 때만 Electron 기본 아이콘으로 보입니다.
+
+바로가기를 만들어 아이콘만 바꿔 두셔도 됩니다.
+(바로가기 우클릭 → 속성 → 아이콘 변경 → `build\app.ico` 선택)
 
 ## 4. 프롬프터 PC 로 옮기기
 

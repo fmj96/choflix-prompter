@@ -7,9 +7,8 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --out=dist --overwrite --asar",
-    "build:mac": "electron-packager . ChoflixPrompter --platform=darwin --arch=arm64 --out=dist --overwrite --asar",
-    "build:win:icon": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --asar --app-version=3.0.0 --win32metadata.CompanyName=CHOFLIX --win32metadata.FileDescription=\"CHOFLIX PROMPTER\"",
+    "build:win": "node scripts/pack-win.mjs",
+    "build:win:packager": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --asar",
     "install:buildonly": "npm install --ignore-scripts"
   },
   "devDependencies": {

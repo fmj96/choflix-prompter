@@ -52,22 +52,32 @@ npm run build:win
 
 `dist/ChoflixPrompter-win32-x64/` 폴더가 만들어집니다.
 
-> Mac 에서 Windows 배포본을 만들 수 있습니다.
-> Electron 의 Windows 실행 파일을 내려받아 앱 파일을 얹는 방식입니다.
+Electron 공식 Windows 배포본을 내려받아 우리 앱을 넣는 방식이라 **wine 이 필요 없습니다.**
+받은 파일은 `.cache/` 에 남으므로 두 번째부터는 내려받지 않습니다.
 
-### exe 파일 아이콘까지 넣으려면
+> **electron-packager 를 쓰지 않는 이유**
+>
+> electron-packager 는 `package.json` 의 version 을 exe 안에 심으려 합니다.
+> 그 작업이 Windows 실행 파일의 리소스를 고쳐 쓰는 일이라 macOS 에서는 wine 을 요구합니다.
+> `--icon` 을 빼도 마찬가지입니다.
+> 정작 필요한 것은 Electron 배포본에 앱 파일을 넣는 것뿐이라 직접 처리합니다.
 
-`.exe` 안에 아이콘과 버전 정보를 심는 작업은 Windows 실행 파일의 리소스를 고쳐 쓰는 일이라,
-Mac 에서 하려면 **Wine** 이 필요합니다.
+### Electron 버전 바꾸기
 
 ```bash
-brew install --cask wine-stable
-npm run build:win:icon
+ELECTRON_VERSION=33.4.11 npm run build:win
 ```
 
-**대부분의 경우 필요 없습니다.** 아이콘을 심지 않아도
-프로그램을 실행하면 **작업표시줄과 창 제목에는 C 아이콘이 제대로 나옵니다.**
-`build/app.ico` 를 창 아이콘으로 지정해 두었기 때문입니다.
+### 내려받기가 막힐 경우
+
+사내망에서 GitHub 접근이 막혀 있다면, 다른 기기에서
+`electron-v33.4.11-win32-x64.zip` 을 직접 받아 프로젝트의 `.cache/` 폴더에 넣으십시오.
+스크립트가 그 파일을 그대로 씁니다.
+
+### exe 파일 아이콘
+
+`.exe` 자체의 아이콘은 Windows 실행 파일 리소스라 macOS 에서 바꾸려면 wine 이 필요합니다.
+**대부분의 경우 필요 없습니다.** 프로그램을 실행하면 작업표시줄과 창 제목에는 C 아이콘이 제대로 나옵니다.
 탐색기에서 `.exe` 파일을 볼 때만 Electron 기본 아이콘으로 보입니다.
 
 바로가기를 만들어 아이콘만 바꿔 두셔도 됩니다.

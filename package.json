@@ -1,0 +1,17 @@
+{
+  "name": "choflix-prompter",
+  "version": "3.0.0",
+  "description": "CHOFLIX PROMPTER — 방송용 프롬프터",
+  "author": "CHOFLIX AI Lab",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --app-version=3.0.0 --win32metadata.CompanyName=CHOFLIX --win32metadata.FileDescription=\"CHOFLIX PROMPTER\"",
+    "build:mac": "electron-packager . ChoflixPrompter --platform=darwin --arch=arm64 --out=dist --overwrite"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+<title>CHOFLIX PROMPTER — 출력</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body style="background:#000">
+  <div class="stage" id="stage">
+    <div class="mirror" id="mirror">
+      <div class="lines" id="lines"></div>
+      <div class="cue" id="cueline"><i class="l"></i><i class="r"></i></div>
+      <div class="hud" id="hud">
+        <div><b>누적</b><span id="hudElapsed">00:00:00</span></div>
+        <div><b>잔여</b><span id="hudRemain">00:00:00</span></div>
+      </div>
+    </div>
+    <div class="fstat" id="fstat" style="display:none"></div>
+  </div>
+<script src="engine.js"></script>
+<script src="stage.js"></script>
+</body>
+</html>

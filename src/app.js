@@ -430,8 +430,8 @@ function bindRange(id, key, fmt, extra) {
   const el = $('#' + id), out = $('#' + id + 'V');
   el.oninput = () => {
     S[key] = parseFloat(el.value);
-    out.value = fmt(S[key]);
-    applyAll();
+    applyAll();                    // 반영이 먼저다
+    if (out) out.value = fmt(S[key]);
     extra?.();
   };
 }
@@ -450,7 +450,7 @@ function syncInputs() {
   $('#size').value = S.size; $('#sizeV').value = S.size;
   $('#lh').value = S.lineHeight; $('#lhV').value = S.lineHeight.toFixed(2);
   $('#side').value = S.side; $('#sideV').value = S.side + ' %';
-  $('#cuePos').value = S.cuePos; $('#cueV').value = S.cuePos + ' %';
+  $('#cuePos').value = S.cuePos; $('#cuePosV').value = S.cuePos + ' %';
   $('#weight').value = S.weight;
   $('#hexInk').value = S.ink; $('#hexBack').value = S.back;
   $$('input[name=align]').forEach(r => r.checked = r.value === S.align);

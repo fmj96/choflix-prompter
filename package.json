@@ -9,11 +9,13 @@
     "start": "electron .",
     "build:win": "node scripts/pack-win.mjs",
     "build:win:packager": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --asar",
-    "install:buildonly": "npm install --ignore-scripts"
+    "install:buildonly": "npm install --ignore-scripts",
+    "build:docs": "node docs-src/build-docs.mjs"
   },
   "devDependencies": {
     "electron": "^33.0.0",
     "electron-packager": "^17.1.2",
+    "pdf-lib": "^1.17.1",
     "resedit": "^3.0.2"
   }
 }

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>CHOFLIX PROMPTER 단축키</title>
+<style>
+  /* 7 × 7 cm @ 600dpi = 1653 × 1653 px. 여기서는 1/3 크기로 그리고 3배로 촬영한다. */
+  :root{ --accent:#b8710a; --ink:#1a1a1a; --sub:#6b7178; --zebra:#f2f3f5; --soft:#fdf3e2; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{width:551px; height:551px; background:#fff}
+  body{font-family:"Apple SD Gothic Neo","Noto Sans KR","맑은 고딕",sans-serif;
+       color:var(--ink); padding:26px 24px 20px; display:flex; flex-direction:column}
+
+  header{display:flex; align-items:baseline; justify-content:space-between;
+         border-bottom:3px solid var(--accent); padding-bottom:9px; margin-bottom:11px}
+  header h1{font-size:23px; font-weight:800; letter-spacing:-.5px}
+  header .k{font-size:12px; font-weight:800; color:var(--accent)}
+
+  .rows{display:flex; flex-direction:column}
+  .r{display:flex; align-items:center; justify-content:space-between;
+     padding:0 7px; height:30.5px; gap:8px}
+  .r:nth-child(odd){background:var(--zebra)}
+  .r .n{font-size:15px; font-weight:700; letter-spacing:-.3px; white-space:nowrap}
+  .keys{display:flex; gap:5px; flex:none}
+  kbd{font-family:"D2Coding","SF Mono",Menlo,Consolas,monospace;
+      font-size:13px; font-weight:700; color:var(--accent);
+      background:var(--soft); border:1.5px solid #e0c191; border-radius:5px;
+      padding:3px 8px; min-width:34px; text-align:center; white-space:nowrap; line-height:1.15}
+  kbd.wide{letter-spacing:-.3px}
+  kbd.plain{color:var(--sub); background:#eceef1; border-color:#d5d9de;
+            font-family:"Apple SD Gothic Neo","맑은 고딕",sans-serif; font-size:12px}
+
+  .sec{display:flex; align-items:center; gap:9px; margin:10px 0 5px}
+  .sec span{font-size:11.5px; font-weight:800; color:var(--accent); white-space:nowrap}
+  .sec i{flex:1; height:1.5px; background:#dfe2e6}
+
+  footer{margin-top:auto; padding-top:9px; border-top:1.5px solid #dfe2e6;
+         display:flex; justify-content:space-between; font-size:10px; color:#9aa1a8}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CHOFLIX PROMPTER</h1>
+  <div class="k">단축키</div>
+</header>
+
+<div class="rows">
+  <div class="r"><span class="n">프롬프터 처음 / 중간</span>
+    <span class="keys"><kbd>F9</kbd><kbd class="wide">Shift+F9</kbd></span></div>
+  <div class="r"><span class="n">시작 / 정지</span>
+    <span class="keys"><kbd class="wide">Space</kbd></span></div>
+  <div class="r"><span class="n">처음으로</span>
+    <span class="keys"><kbd>F10</kbd></span></div>
+  <div class="r"><span class="n">속도 내림 / 올림</span>
+    <span class="keys"><kbd>↑</kbd><kbd>↓</kbd></span></div>
+  <div class="r"><span class="n">미세 위 / 아래</span>
+    <span class="keys"><kbd class="wide">Shift+↑↓</kbd></span></div>
+  <div class="r"><span class="n">반 화면 위 / 아래</span>
+    <span class="keys"><kbd>PgUp</kbd><kbd>PgDn</kbd></span></div>
+  <div class="r"><span class="n">글자 작게 / 크게</span>
+    <span class="keys"><kbd>←</kbd><kbd>→</kbd></span></div>
+  <div class="r"><span class="n">운영자 바</span>
+    <span class="keys"><kbd>Tab</kbd></span></div>
+  <div class="r"><span class="n">프롬프터 닫기</span>
+    <span class="keys"><kbd>Esc</kbd></span></div>
+</div>
+
+<div class="sec"><span>마우스 · 휠</span><i></i></div>
+
+<div class="rows">
+  <div class="r"><span class="n">시작 / 정지</span>
+    <span class="keys"><kbd class="plain">왼쪽 클릭</kbd></span></div>
+  <div class="r"><span class="n">위아래 이동</span>
+    <span class="keys"><kbd class="plain">끌기</kbd></span></div>
+  <div class="r"><span class="n">속도 · 주행 중</span>
+    <span class="keys"><kbd class="plain">휠</kbd></span></div>
+  <div class="r"><span class="n">이동 · 정지 중</span>
+    <span class="keys"><kbd class="plain">휠</kbd></span></div>
+</div>
+
+<footer><span>CHOFLIX AI LAB</span><span>v3.0.1</span></footer>
+
+</body>
+</html>

@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>CHOFLIX PROMPTER 사용설명서</title>
+<style>
+  @page { size: A4; margin: 15mm 16mm 14mm; }
+
+  :root{
+    --ink:#1a1a1a; --sub:#5a5f66; --line:#d8dce1; --zebra:#f5f6f8;
+    --accent:#c07708; --accent-soft:#fdf3e2; --warn:#b03a2e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{
+    font-family:"Apple SD Gothic Neo","Noto Sans KR","맑은 고딕","Malgun Gothic",sans-serif;
+    font-size:10pt; line-height:1.66; color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  code,.mono{font-family:"D2Coding","SF Mono",Menlo,Consolas,monospace; font-size:9pt}
+
+  /* ── 표지 ─────────────────────────────────── */
+  .cover{height:262mm; display:flex; flex-direction:column; justify-content:center;
+         page-break-after:always}
+  .cover .mark{width:26mm; height:26mm; border-radius:7mm; background:#141414;
+               display:flex; align-items:center; justify-content:center; margin-bottom:14mm}
+  .cover .mark span{color:#fff; font-size:15mm; font-weight:800; line-height:1; letter-spacing:-.02em}
+  .cover h1{font-size:30pt; font-weight:800; letter-spacing:-.02em; line-height:1.15}
+  .cover h1 em{display:block; font-style:normal; color:var(--accent)}
+  .cover .tag{margin-top:5mm; font-size:13pt; font-weight:600; color:var(--sub)}
+  .cover .desc{margin-top:9mm; font-size:10.5pt; color:var(--sub); line-height:1.85; max-width:120mm}
+  .cover .meta{margin-top:16mm; padding-top:5mm; border-top:2px solid var(--accent);
+               display:flex; justify-content:space-between; align-items:flex-end; font-size:9.5pt}
+  .cover .meta b{font-size:14pt; color:var(--accent)}
+  .cover .meta .r{text-align:right; color:var(--sub); line-height:1.7}
+
+  /* ── 목차 ─────────────────────────────────── */
+  .toc{page-break-after:always}
+  .toc h2{font-size:18pt; font-weight:800; margin-bottom:6mm}
+  .toc ol{list-style:none}
+  .toc li{display:flex; gap:5mm; padding:2.1mm 0; border-bottom:1px solid var(--line)}
+  .toc .n{width:9mm; font-weight:800; color:var(--accent); font-size:11pt; flex:none}
+  .toc .t{font-weight:700; font-size:11pt}
+  .toc .d{color:var(--sub); font-size:9pt; margin-top:.5mm}
+
+  /* ── 장 ───────────────────────────────────── */
+  .ch{page-break-before:always}
+  .ch > h2{font-size:16pt; font-weight:800; letter-spacing:-.01em;
+           padding-bottom:2.2mm; margin-bottom:4.4mm; border-bottom:2px solid var(--accent)}
+  .ch > h2 i{font-style:normal; color:var(--accent); margin-right:3mm}
+  h3{font-size:11.5pt; font-weight:800; margin:4.4mm 0 2mm}
+  h3.brk{page-break-before:always; margin-top:0}   /* 뜻이 나뉘는 자리에서 쪽 넘김 */
+  h3:first-of-type{margin-top:0}
+  h4{font-size:10pt; font-weight:700; margin:5mm 0 1.5mm; color:var(--sub)}
+  p{margin-bottom:2.2mm}
+  ul,ol.steps{margin:0 0 3mm 5mm}
+  li{margin-bottom:1.2mm}
+  ol.steps{counter-reset:s; list-style:none; margin-left:0}
+  ol.steps > li{counter-increment:s; padding-left:7mm; position:relative}
+  ol.steps > li::before{content:counter(s); position:absolute; left:0; top:.3mm;
+    width:4.6mm; height:4.6mm; border-radius:50%; background:var(--accent); color:#fff;
+    font-size:7.5pt; font-weight:700; display:flex; align-items:center; justify-content:center}
+
+  table{width:100%; border-collapse:collapse; margin:2mm 0 3.2mm; font-size:9.5pt}
+  th{text-align:left; font-weight:700; font-size:8.5pt; color:var(--sub);
+     padding:2mm 2.5mm; border-bottom:1.5px solid var(--ink); white-space:nowrap}
+  td{padding:1.9mm 2.5mm; border-bottom:1px solid var(--line); vertical-align:top}
+  tbody tr:nth-child(even){background:var(--zebra)}
+  td.k{white-space:nowrap; font-weight:700; width:1%}
+  td.key{white-space:nowrap; width:1%; text-align:right}
+  kbd{font-family:"D2Coding","SF Mono",Menlo,monospace; font-size:8.5pt; font-weight:700;
+      color:var(--accent); background:var(--accent-soft); border:1px solid #e8cfa2;
+      border-radius:2mm; padding:.6mm 1.8mm; white-space:nowrap}
+
+  .note{border-left:3px solid var(--accent); background:var(--accent-soft);
+        padding:2.6mm 3.5mm; margin:2.5mm 0 3.2mm; page-break-inside:avoid}
+  .note > b:first-child{display:block; font-size:9.5pt; margin-bottom:1mm}
+  .note p:last-child{margin-bottom:0}
+  .warn{border-left-color:var(--warn); background:#fdf1ef}
+  .warn > b:first-child{color:var(--warn)}
+  .plain{background:#f5f6f8; border-left-color:var(--sub)}
+
+  pre{background:#15181d; color:#e8ebef; border-radius:2mm; padding:3mm 4mm;
+      margin:2mm 0 4mm; font-family:"D2Coding","SF Mono",Menlo,monospace;
+      font-size:8.5pt; line-height:1.65; white-space:pre-wrap; page-break-inside:avoid}
+  pre .c{color:#8b93a0}
+
+  /* 실제 상단 바는 한 줄이다. 접히면 그림이 거짓말을 한다 */
+  .bar{border:1px solid var(--line); border-radius:2mm; padding:2.2mm; margin:2mm 0 3mm;
+       display:flex; align-items:center; gap:2mm; font-size:7pt; background:#fafbfc;
+       page-break-inside:avoid; flex-wrap:nowrap; white-space:nowrap; overflow:hidden}
+  .bar .lamp{width:2.6mm; height:2.6mm; border-radius:50%; background:#c9ccd1; flex:none}
+  .bar .b{border:1px solid var(--line); border-radius:1.5mm; padding:.8mm 1.8mm; background:#fff; flex:none}
+  .bar .b.go{background:var(--accent-soft); border-color:#e8cfa2; font-weight:700; color:var(--accent)}
+  .bar .t{font-family:"D2Coding",Menlo,monospace; font-weight:700}
+  .bar .t.on{color:var(--accent)}
+  .bar .sp{flex:1}
+
+</style>
+</head>
+<body>
+
+<!-- ══ 표지 ══════════════════════════════════════════ -->
+<section class="cover">
+  <div class="mark"><span>C</span></div>
+  <h1>CHOFLIX<em>PROMPTER</em></h1>
+  <div class="tag">방송용 프롬프터 사용설명서</div>
+  <p class="desc">
+    카메라 앞 하프미러 리그를 쓰는 스튜디오 환경을 위한 Windows 전용 프롬프터입니다.<br>
+    원고 작성부터 주행 제어, 엔지 대응까지 한 프로그램에서 처리합니다.
+  </p>
+  <div class="meta">
+    <div><b>Version 3.0.1</b><br>Windows 10 / 11 · 설치 불필요</div>
+    <div class="r">CHOFLIX AI LAB<br>2026</div>
+  </div>
+</section>
+
+<!-- ══ 목차 ══════════════════════════════════════════ -->
+<section class="toc">
+  <h2>목차</h2>
+  <ol>
+    <li><span class="n">1</span><span><span class="t">설치와 실행</span><div class="d">옮기기 · 실행 · 배포본 만들기</div></span></li>
+    <li><span class="n">2</span><span><span class="t">화면 구성</span><div class="d">편집 모드 · 프롬프터 모드 · 운영자 바</div></span></li>
+    <li><span class="n">3</span><span><span class="t">원고 작성</span><div class="d">편집창 미리보기 · 어절 줄바꿈 · 자동 보존</div></span></li>
+    <li><span class="n">4</span><span><span class="t">리그 설치 설정</span><div class="d">출력 배치 · 반전 처리 · 하프미러 프리셋</div></span></li>
+    <li><span class="n">5</span><span><span class="t">표시 설정</span><div class="d">글꼴 · 정렬 · 색 · 큐 라인</div></span></li>
+    <li><span class="n">6</span><span><span class="t">주행 조작</span><div class="d">시작 방식 · 속도 · 위치 이동</div></span></li>
+    <li><span class="n">7</span><span><span class="t">시간 표시</span><div class="d">누적 · 잔여 · 전체 · 엔지 재독 처리</div></span></li>
+    <li><span class="n">8</span><span><span class="t">단축키</span><div class="d">기본값 · 재지정 방법</div></span></li>
+    <li><span class="n">9</span><span><span class="t">실전 운용 절차</span><div class="d">방송 전 점검 · 생방송 중 수정 · 엔지 대응</div></span></li>
+    <li><span class="n">10</span><span><span class="t">문제 해결</span><div class="d">증상별 대처</div></span></li>
+    <li><span class="n">11</span><span><span class="t">파일 위치</span><div class="d">설정 · 원고 보존본</div></span></li>
+  </ol>
+  <div class="note plain" style="margin-top:6mm">
+    <b>v2 에서 올라오신 경우</b>
+    <p>v3.0 부터 프로그램의 속이 완전히 바뀌었습니다(C# WPF → Electron). 조작 방법과 화면 구성은
+    거의 그대로지만, <b>설치 방법과 기본 단축키가 달라졌습니다.</b> 1장과 8장을 먼저 보십시오.</p>
+  </div>
+</section>
+
+<!-- ══ 1 설치와 실행 ══════════════════════════════════ -->
+<section class="ch">
+  <h2><i>1</i>설치와 실행</h2>
+
+  <h3>필요한 것</h3>
+  <p>Windows 10 또는 11 뿐입니다. <b>.NET 도, 별도 런타임도 필요하지 않습니다.</b>
+  프로그램이 실행에 필요한 모든 것을 폴더 안에 담고 있습니다.</p>
+
+  <div class="note">
+    <b>v2 와 달라진 점</b>
+    <p>v2 까지는 .NET 8 런타임을 미리 깔아야 했고 <code>run.bat</code> · <code>publish.bat</code> 으로
+    실행했습니다. v3 은 그 과정이 모두 없어졌습니다.</p>
+  </div>
+
+  <h3>실행</h3>
+  <ol class="steps">
+    <li>받은 압축 파일을 프롬프터 PC 의 원하는 위치에 풉니다 (예: <code>C:\Prompter</code>)</li>
+    <li>폴더 안의 <code>ChoflixPrompter.exe</code> 를 두 번 누릅니다</li>
+  </ol>
+  <p>설치 과정도, 관리자 권한도 필요 없습니다. 창은 최대화된 상태로 열립니다.
+  폴더째 USB 로 옮겨 다른 PC 에서 실행해도 그대로 동작합니다.</p>
+
+  <div class="note warn">
+    <b>폴더 전체를 함께 옮기십시오</b>
+    <p><code>ChoflixPrompter.exe</code> 하나만 꺼내면 실행되지 않습니다. 같은 폴더의
+    <code>resources</code> · <code>locales</code> 와 <code>.dll</code> 파일들이 함께 있어야 합니다.
+    바탕화면에 두고 쓰시려면 <b>바로가기</b>를 만드십시오.</p>
+  </div>
+
+  <h3>새 버전으로 바꾸기</h3>
+  <ol class="steps">
+    <li>프롬프터가 실행 중이면 닫습니다</li>
+    <li>기존 폴더를 통째로 지우거나 이름을 바꿔 둡니다</li>
+    <li>새 폴더를 풀어 놓고 실행합니다</li>
+  </ol>
+  <p>설정과 원고 보존본은 프로그램 폴더가 아니라 <code>%APPDATA%</code> 에 따로 있으므로
+  (11장 참고) <b>폴더를 지워도 설정과 원고는 남습니다.</b></p>
+
+  <h3>배포본 만들기 — 개발자용</h3>
+  <p>프롬프터 PC 는 인터넷이 없으므로 빌드는 항상 Mac 에서 합니다.</p>
+<pre><span class="c"># 처음 한 번</span>
+npm install --ignore-scripts
+
+<span class="c"># 배포본 만들기</span>
+npm run build:win
+<span class="c">→ dist/ChoflixPrompter-win32-x64/</span></pre>
+  <p>만들어진 폴더를 압축해 USB 나 NAS(<code>192.168.10.100</code>)로 옮깁니다.
+  자세한 내용은 저장소의 <code>BUILD.md</code> 를 보십시오.</p>
+</section>
+
+<!-- ══ 2 화면 구성 ════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>2</i>화면 구성</h2>
+  <p>창 하나가 두 가지 모드를 오갑니다. 전환은 상단 버튼 또는 단축키로 합니다.</p>
+
+  <h3>상단 바</h3>
+  <div class="bar">
+    <span class="lamp"></span><b>CHOFLIX PROMPTER</b>
+    <span class="sp"></span>
+    <span>누적 <span class="t on">00:00:00</span></span>
+    <span>잔여 <span class="t">00:07:12</span></span>
+    <span>전체 <span class="t">00:07:12</span></span>
+    <span class="sp"></span>
+    <span>속도 ──── 55 px/s</span>
+    <span class="b go">프롬프터 (처음부터)</span><span class="b">프롬프터 (중간부터)</span>
+  </div>
+
+  <table>
+    <thead><tr><th>요소</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td class="k">탈리 램프</td><td>주행 중에 빨갛게 켜집니다</td></tr>
+      <tr><td class="k">누적 · 잔여 · 전체</td><td>7장 참고. 누적 숫자를 클릭하면 0 으로 초기화됩니다</td></tr>
+      <tr><td class="k">속도</td><td>초당 이동 픽셀 수. 주행 중에도 조절할 수 있습니다</td></tr>
+      <tr><td class="k">프롬프터 (처음부터)</td><td>원고 맨 앞으로 되감고 시작. 누적 시간도 초기화</td></tr>
+      <tr><td class="k">프롬프터 (중간부터)</td><td>편집창 커서가 놓인 줄부터 시작</td></tr>
+    </tbody>
+  </table>
+  <p>프롬프터가 열려 있는 동안에는 첫 버튼이 <b>편집 모드로</b> 바뀌고 둘째 버튼은 숨습니다.</p>
+
+  <h3>편집 모드</h3>
+  <p>왼쪽은 원고 편집창, 오른쪽은 제어판입니다. 위에서부터 자주 만지는 순서로 놓았습니다.</p>
+  <table>
+    <thead><tr><th>카드</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td class="k">표시</td><td>글꼴 · 크기 · 줄 간격 · 좌우 여백 · 정렬 · 굵기 · 편집창 미리보기 · 어절 줄바꿈 · 화면에 잔여시간 표시</td></tr>
+      <tr><td class="k">큐 라인</td><td>큐 라인 표시 · 큐 위치</td></tr>
+      <tr><td class="k">색</td><td>글자색 · 배경색 · 큐 라인 색</td></tr>
+      <tr><td class="k">단축키</td><td>동작별 키 지정 · 마우스 조작 안내</td></tr>
+      <tr><td class="k">출력 · 미러</td><td>출력 배치 · 모니터 선택 · 반전 처리 (설치할 때 한 번)</td></tr>
+    </tbody>
+  </table>
+  <p>원고창 머리말에는 <b>줄 수 · 글자 수 · 낭독 추정</b>이 늘 떠 있습니다.</p>
+
+  <h3 class="brk">프롬프터 모드</h3>
+  <p>선택한 배치에 따라 두 가지로 동작합니다.</p>
+  <ul>
+    <li><b>복제</b> — 이 창이 전체화면(작업표시줄까지 덮음)이 됩니다</li>
+    <li><b>확장</b> — 프롬프터 모니터에 전체화면 창이 따로 열리고, 운영자 화면에는 편집 콘솔이 그대로 남습니다</li>
+  </ul>
+
+  <h3>운영자 바 (복제 배치)</h3>
+  <p>화면 하단에 속도 조절, 가운데 큼직한 누적 진행 시간, 오른쪽에 잔여시간과
+  <b>시작 · 처음으로 · 닫기</b> 버튼이 있습니다. 누적 시간은 멀리서도 읽히도록 크게 표시되므로,
+  강의나 강연처럼 진행자가 경과 시간을 직접 확인해야 하는 경우 바를 켜 두고 쓰시면 됩니다.</p>
+
+  <div class="note warn">
+    <b>운영자 바는 <kbd>Tab</kbd> 으로만 켜고 끕니다</b>
+    <p>프롬프터를 열면 <b>꺼진 상태로 시작</b>하며, 저절로 나타나거나 사라지지 않습니다.
+    출연자가 보는 화면에 조작 UI 가 예고 없이 튀어나오지 않게 하기 위한 것입니다.</p>
+  </div>
+
+  <p>화면 맨 아래 3px 진행 스트립은 항상 남아 있어, 운영자 바가 꺼져 있어도 위치는 확인할 수 있습니다.</p>
+</section>
+
+<!-- ══ 3 원고 작성 ════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>3</i>원고 작성</h2>
+
+  <h3>표기 규칙</h3>
+  <p>특별한 표기 없이 <b>줄 단위로 그대로</b> 표시됩니다. 빈 줄은 문단 간격이 됩니다.
+  원고에 지시문이나 표시를 위한 기호를 넣을 필요가 없습니다.</p>
+
+  <h3>편집창 미리보기</h3>
+  <p>편집창에 프롬프터와 같은 글꼴 · 크기 · 줄 간격 · 색 · 정렬 · 굵기가 그대로 적용됩니다.
+  글자 크기는 화면 폭 대비 편집창 폭 비율로 줄여 보여 주므로,
+  편집창에서 보이는 줄바꿈 위치가 실제 프롬프터와 거의 같습니다.</p>
+  <p>필요 없으면 <b>표시</b> 카드의 <b>편집창에 이 스타일 그대로 표시</b> 를 끄십시오.
+  평범한 검정 배경 편집기로 돌아갑니다.</p>
+
+  <h3>어절 단위 줄바꿈</h3>
+  <p>한글은 음절 단위로 끊어도 된다고 보는 것이 기본 동작이라,
+  그냥 두면 <b>안녕하십니 / 까</b> 처럼 어절 중간이 갈라집니다. 프롬프터에서는 읽기 흐름이 끊기는 문제입니다.</p>
+  <p>이 옵션을 켜면 어절 안쪽에서 줄이 바뀌지 않습니다.
+  한 줄에 도저히 들어가지 않는 긴 어절만 예외적으로 끊깁니다.</p>
+
+  <div class="note">
+    <b>v3 부터 편집창에도 적용됩니다</b>
+    <p>v2 에서는 글자 사이에 보이지 않는 문자를 끼워 넣는 방식이라 편집 중인 원고에는 쓸 수 없었습니다.
+    v3 은 표시 방식만 바꾸므로 원고 내용에 아무것도 섞이지 않고,
+    <b>편집창과 프롬프터가 똑같이 줄을 바꿉니다.</b></p>
+  </div>
+
+  <h3>불러오기 · 저장</h3>
+  <p>원고창 머리말 오른쪽의 <b>불러오기</b> · <b>저장</b> 으로 txt 파일을 주고받습니다.
+  파일은 UTF-8 로 읽고 씁니다.</p>
+  <div class="note plain">
+    <b>한글이 깨져 보인다면</b>
+    <p>옛날 ANSI(CP949)로 저장된 파일입니다. 메모장에서 열어
+    <b>다른 이름으로 저장 → 인코딩 UTF-8</b> 로 바꾼 뒤 다시 불러오십시오.</p>
+  </div>
+
+  <h3>원고 자동 보존</h3>
+  <p>작업 중인 원고는 자동으로 보존됩니다. 정전이나 강제 종료로 창이 닫혀도 다시 실행하면
+  마지막 원고가 복원되고, 원고창 머리말 오른쪽에
+  <b>이전 원고를 복원했습니다 · 08-21 09:15</b> 가 표시됩니다.</p>
+
+  <table>
+    <thead><tr><th>보존 시점</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td class="k">5초마다</td><td>내용이 바뀐 경우에만 기록합니다</td></tr>
+      <tr><td class="k">프롬프터 시작 시</td><td>방송에 나간 원고는 확실히 남습니다</td></tr>
+      <tr><td class="k">정상 종료 시</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>안전장치</b>
+    <p>임시 파일에 먼저 쓴 뒤 바꿔치우는 방식이라, 저장 도중 전원이 나가도 이전 보존본이 깨지지 않습니다.
+    다만 보존본은 <b>한 벌만</b> 유지되므로, 여러 원고를 보관하시려면 <b>저장</b> 으로 따로 파일을 만드십시오.</p>
+  </div>
+</section>
+
+<!-- ══ 4 리그 설치 설정 ═══════════════════════════════ -->
+<section class="ch">
+  <h2><i>4</i>리그 설치 설정</h2>
+  <p>제어판 맨 아래 <b>출력 · 미러</b> 카드에서 설정합니다. 리그를 설치할 때 한 번 잡아 두면 되는 항목입니다.</p>
+
+  <h3>반전은 누가 처리하는가</h3>
+  <p>하프미러 유리에 반사시키는 리그는 화면을 좌우로 뒤집어야 글이 바로 읽힙니다.
+  이 반전을 <b>모니터가 처리할지, 프로그램이 처리할지</b> 먼저 정해야 합니다.</p>
+  <table>
+    <thead><tr><th>선택</th><th>프로그램 출력</th><th>쓰는 경우</th></tr></thead>
+    <tbody>
+      <tr><td class="k">모니터 자체 반전 기능 사용</td><td>정방향</td><td>모니터에 좌우반전 기능이 있는 경우</td></tr>
+      <tr><td class="k">소프트웨어로 반전</td><td>뒤집힌 화면</td><td>반전 기능이 없는 모니터</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note warn">
+    <b>둘 다 켜면 두 번 뒤집힙니다</b>
+    <p>모니터 반전 기능을 켜 두셨다면 소프트웨어 반전은 반드시 꺼야 합니다.
+    <b>모니터 자체 반전 기능 사용</b> 을 고르면 소프트웨어 반전이 자동으로 꺼지고 체크박스도 비활성화됩니다.
+    방송 중에 발견하면 대응하기 어려운 종류의 실수라 프로그램에서 막아 두었습니다.</p>
+  </div>
+
+  <div class="note plain">
+    <b>모니터 설정이 풀리는 기종</b>
+    <p>입력을 전환하거나 전원을 다시 넣으면 반전 설정이 초기화되는 모니터가 있습니다.
+    방송 전에 유리에서 글이 바로 읽히는지 한 번 확인하는 편이 안전합니다.</p>
+  </div>
+
+  <h3>출력 배치</h3>
+  <table>
+    <thead><tr><th>배치</th><th>화면 구성</th></tr></thead>
+    <tbody>
+      <tr><td class="k">복제</td><td>이 창이 전체화면이 되어 두 모니터가 같은 그림을 봅니다</td></tr>
+      <tr><td class="k">확장</td><td>프롬프터 모니터에 전체화면 창이 따로 열리고, 운영자 화면에는 편집 콘솔이 남습니다</td></tr>
+    </tbody>
+  </table>
+  <p>모니터 반전 기능을 쓰신다면 <b>복제</b> 배치로 충분합니다. 프로그램이 정방향으로 출력하므로
+  운영자 화면도 정상으로 보입니다. <b>확장</b> 배치는 주행 중에도 원고를 편집하거나
+  다음 꼭지를 미리 볼 때 유용합니다.</p>
+  <p>확장으로 바꾸려면 <kbd>Win</kbd> + <kbd>P</kbd> → <b>확장</b> 으로 설정한 뒤
+  <b>모니터 다시 검색</b> 을 누르십시오.</p>
+
+  <h3>하프미러 리그 프리셋</h3>
+  <p><b>하프미러 리그 프리셋 적용</b> 버튼을 누르면 다음이 한 번에 잡힙니다.</p>
+  <ul>
+    <li>모니터 자체 반전 사용 (소프트웨어 반전 OFF)</li>
+    <li>검정 배경 + 흰 글씨 — 유리 반사 대비가 가장 좋습니다</li>
+    <li>큐 라인 표시 ON, 가운데 정렬</li>
+  </ul>
+</section>
+
+<!-- ══ 5 표시 설정 ════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>5</i>표시 설정</h2>
+
+  <h3>글꼴과 배치</h3>
+  <table>
+    <thead><tr><th>항목</th><th>범위</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td class="k">글꼴</td><td>—</td><td>맑은 고딕 · 나눔고딕 · Noto Sans KR · 본고딕 · 굴림 · 바탕 · 돋움 · Segoe UI · Arial</td></tr>
+      <tr><td class="k">글자 크기</td><td>24 ~ 180</td><td>주행 중에도 <kbd>←</kbd> <kbd>→</kbd> 로 조절 가능</td></tr>
+      <tr><td class="k">줄 간격</td><td>1.00 ~ 2.60</td><td>배수</td></tr>
+      <tr><td class="k">좌우 여백</td><td>0 ~ 28 %</td><td>화면 폭 대비</td></tr>
+      <tr><td class="k">정렬</td><td>좌 · 가운데 · 우</td><td>기본 가운데</td></tr>
+      <tr><td class="k">굵기</td><td>4단계</td><td>보통 · 약간 굵게 · 굵게(기본) · 매우 굵게</td></tr>
+    </tbody>
+  </table>
+
+  <h3>색</h3>
+  <p>글자색 · 배경색 · 큐 라인 색을 각각 지정합니다. 색 견본을 누르거나
+  <code>#RRGGBB</code> 로 직접 입력합니다.
+  <b>글자색 ↔ 배경색 맞바꾸기</b> 버튼으로 흑백을 뒤집을 수 있습니다.</p>
+  <div class="note">
+    <b>하프미러 리그 권장</b>
+    <p>검정 배경 + 흰 글씨가 반사 대비가 가장 좋습니다. 눈이 부시다는 의견이 있으면
+    글자색을 연노랑(<code>#FFF3C4</code>)으로 낮춰 보십시오.</p>
+  </div>
+
+  <h3>큐 라인</h3>
+  <p>출연자가 시선을 두는 기준선입니다. 원고는 이 선에 맞춰 올라옵니다.
+  위치는 화면 상단 대비 <b>10 ~ 70 %</b> 범위에서 조절하며 기본값은 <b>35 %</b> 입니다.
+  출연자 신장이나 카메라 높이에 따라 조정하십시오.</p>
+
+  <h3>화면에 잔여시간 표시</h3>
+  <p>프롬프터 화면 우측 상단에 누적 · 잔여 시간을 흐리게 표시합니다.
+  출연자가 남은 분량을 가늠하는 데 쓰입니다. 필요 없으면 끄십시오.</p>
+
+  <h3>부드러운 주행</h3>
+  <p>원고는 매 프레임 <b>소수점 단위</b>로 움직입니다.
+  60Hz 화면에서 속도 75 px/s 면 한 프레임에 1.25픽셀을 가야 하는데,
+  이를 1픽셀과 2픽셀로 번갈아 처리하면 프레임은 다 나오면서도 눈에는 떨려 보입니다.</p>
+  <p>v3 의 표시 엔진은 소수점 픽셀 위치에 글자를 제대로 그리므로,
+  <b>속도가 주사율의 배수가 아니어도 균일하게 흐릅니다.</b>
+  v2 까지 남아 있던 미세한 떨림은 이 방식으로 바꾸면서 해결되었습니다.</p>
+  <div class="note plain">
+    <b>v2 의 비트맵 캐시 옵션은 없어졌습니다</b>
+    <p>원고를 그림으로 한 번 그려 두고 밀던 방식입니다. 긴 원고에서는 크기 상한에 걸려
+    실제로는 켜지지 않았고, v3 에서는 필요가 없어져 항목째 없앴습니다.</p>
+  </div>
+</section>
+
+<!-- ══ 6 주행 조작 ════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>6</i>주행 조작</h2>
+
+  <h3>두 가지 시작 방식</h3>
+  <table>
+    <thead><tr><th>방식</th><th>동작</th><th>쓰는 경우</th></tr></thead>
+    <tbody>
+      <tr><td class="k">처음부터</td><td>원고 맨 앞으로 되감고 시작. 누적 시간 초기화</td><td>새 테이크 시작</td></tr>
+      <tr><td class="k">중간부터</td><td>편집창 커서가 놓인 줄부터 시작</td><td>수정한 자리에서 이어 읽을 때</td></tr>
+    </tbody>
+  </table>
+
+  <h3>위치 이동</h3>
+  <table>
+    <thead><tr><th>조작</th><th>이동량</th></tr></thead>
+    <tbody>
+      <tr><td class="k">미세 이동</td><td>40 px — 출연자가 한 줄 놓쳤을 때</td></tr>
+      <tr><td class="k">반 화면 이동</td><td>보이는 화면 높이의 절반</td></tr>
+      <tr><td class="k">마우스 휠</td><td>주행 중 속도 조절 · 정지 중 위치 이동</td></tr>
+      <tr><td class="k">마우스 드래그</td><td>원고를 잡아 끌어 이동</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>주행 중 글자 크기 조절</b>
+    <p>글자 크기를 바꾸면 원고 전체 높이가 달라집니다. 그래도 읽던 지점의 진행 비율을 기준으로
+    위치를 되잡기 때문에 흐름이 끊기지 않습니다.
+    출연자가 "안 보인다"고 하면 <kbd>→</kbd> 를 몇 번 누르십시오.</p>
+  </div>
+
+  <h3>마우스 조작</h3>
+  <table>
+    <thead><tr><th>입력</th><th>동작</th></tr></thead>
+    <tbody>
+      <tr><td class="k">왼쪽 클릭</td><td>시작 / 정지</td></tr>
+      <tr><td class="k">왼쪽 드래그</td><td>원고를 손으로 잡아 끌듯 위아래로 이동</td></tr>
+      <tr><td class="k">휠 — 주행 중</td><td>속도 조절 · 아래로 굴리면 빨라집니다</td></tr>
+      <tr><td class="k">휠 — 정지 중</td><td>위치 이동</td></tr>
+    </tbody>
+  </table>
+  <p>휠은 상황에 따라 하는 일이 달라집니다. 주행 중에 위치를 튕기면 출연자가 흐름을 놓치므로,
+  읽고 있을 때는 조그휠처럼 <b>속도만</b> 바뀝니다. 굴리면서 출연자 속도에 맞추십시오.
+  멈춰 있을 때는 위치를 잡아야 하므로 이동으로 동작합니다.</p>
+  <p>드래그는 큰 폭으로 옮길 때 편합니다. 살짝 눌렀다 떼면 클릭(시작/정지)으로,
+  끌면 이동으로 구분됩니다. 상하 반전 중에도 손이 가는 방향과 화면이 맞도록 처리됩니다.</p>
+
+  <div class="note plain">
+    <b>왼쪽 클릭 시작 / 정지는 끌 수 없습니다</b>
+    <p>v2 에는 이 동작을 끄는 옵션이 있었으나, 기본 조작이라 v3.0.1 에서 항목을 없앴습니다.</p>
+  </div>
+</section>
+
+<!-- ══ 7 시간 표시 ════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>7</i>시간 표시</h2>
+  <p>상단에 세 가지 시간이 표시됩니다.</p>
+  <table>
+    <thead><tr><th>표시</th><th>계산 방식</th></tr></thead>
+    <tbody>
+      <tr><td class="k">누적</td><td>원고를 새로 읽어 나간 분량을 시간으로 환산. 엔지 재독은 제외</td></tr>
+      <tr><td class="k">잔여</td><td>(전체 높이 − 현재 위치) ÷ 속도</td></tr>
+      <tr><td class="k">전체</td><td>전체 높이 ÷ 속도</td></tr>
+    </tbody>
+  </table>
+
+  <h3>잔여 · 전체</h3>
+  <p>"지금 시작해서 한 번도 멈추지 않으면 몇 초 걸리는가"입니다.
+  출연자의 실제 낭독 속도와는 무관하며, <b>속도 · 글자 크기 · 줄 간격 · 여백</b>을 바꾸면 즉시 다시 계산됩니다.
+  정지 중에는 시간이 흐르지 않습니다.</p>
+
+  <div class="note">
+    <b>v3.0.1 부터 편집 중에도 나옵니다</b>
+    <p>프롬프터를 열지 않은 상태에서도 잔여 · 전체가 표시됩니다.
+    <b>실제 출력이 나갈 모니터와 같은 폭</b>으로 원고 높이를 따로 재기 때문에,
+    프롬프터를 열었을 때와 같은 값이 나옵니다.</p>
+    <p>이때 <b>잔여</b>는 <b>편집창 커서가 놓인 줄부터 끝까지</b>입니다.
+    <b>프롬프터 (중간부터)</b> 로 시작할 때의 남은 시간과 기준이 같습니다.
+    커서를 옮기면 잔여도 따라 바뀝니다.</p>
+  </div>
+
+  <h3 class="brk">누적 — 엔지 재독을 빼고 셉니다</h3>
+  <p>누적은 벽시계 시간이 아니라 <b>원고를 얼마나 새로 읽어 나갔는지</b>를 잽니다.
+  엔지가 나서 위로 되감아 다시 읽는 동안에는 시간이 늘지 않고,
+  이전에 도달했던 가장 먼 지점을 넘어서는 순간부터 다시 올라갑니다.</p>
+  <table>
+    <thead><tr><th>상황</th><th>누적 시간</th></tr></thead>
+    <tbody>
+      <tr><td class="k">정상 주행</td><td>흐름</td></tr>
+      <tr><td class="k">엔지 → 위로 되감기</td><td>멈춤</td></tr>
+      <tr><td class="k">되감은 구간을 다시 읽는 중</td><td>멈춤</td></tr>
+      <tr><td class="k">이전 최대 지점을 넘어선 뒤</td><td>다시 흐름</td></tr>
+      <tr><td class="k">손으로 건너뛴 구간</td><td>더하지 않음 (읽지 않았으므로)</td></tr>
+    </tbody>
+  </table>
+  <p>덕분에 누적 시간이 곧 <b>편집 후 완성본의 길이</b>에 가까운 값이 됩니다.</p>
+  <p>누적 숫자를 클릭하면 0 으로 초기화되고, <b>프롬프터 (처음부터)</b> 로 시작해도 초기화됩니다.</p>
+
+  <div class="note plain">
+    <b><kbd>F10</kbd>(처음으로) 은 누적을 지우지 않습니다</b>
+    <p>엔지 되감기로 쓰이는 경우가 대부분이라, 여기서 초기화하면 되감을 때마다 누적이 날아갑니다.
+    새 테이크를 시작하실 때는 누적 숫자를 클릭하거나 <b>처음부터</b> 로 여십시오.</p>
+  </div>
+
+  <h3>원고창 머리말의 「낭독 추정」</h3>
+  <p>이쪽은 <b>글자 수 기준</b>입니다. 공백 제외 글자 수를 분당 330자로 나눈 값으로,
+  한국어 뉴스 낭독 속도의 대략적인 평균입니다. 아나운서마다 편차가 크므로 참고값으로만 보십시오.</p>
+  <p><b>낭독 추정</b>과 <b>전체</b>가 다르게 나오는 것은 정상입니다 — 앞은 글자 수,
+  뒤는 설정한 주행 속도로 계산합니다. 리허설로 읽어 보시고 두 값이 비슷해지는 속도를 찾아 두시면
+  잔여 시간이 실제 방송 시간과 맞아떨어집니다.</p>
+</section>
+
+<!-- ══ 8 단축키 ═══════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>8</i>단축키</h2>
+
+  <div class="note warn">
+    <b>v3.0.1 에서 기본 키가 바뀌었습니다</b>
+    <p>프롬프터 열기가 <kbd>F5</kbd> 계열에서 <kbd>F9</kbd> 계열로, 처음으로가
+    <kbd>F6</kbd> 에서 <kbd>F10</kbd> 으로 바뀌었습니다.
+    <b>이전 버전을 쓰던 PC 에서는 저장된 설정이 우선하므로</b>, 새 기본값을 쓰시려면
+    제어판 <b>단축키</b> 카드의 <b>기본값으로 되돌리기</b> 를 한 번 누르십시오.</p>
+  </div>
+
+  <h3>기본값</h3>
+  <table>
+    <thead><tr><th>동작</th><th>기본 키</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td class="k">프롬프터 (처음부터)</td><td class="key"><kbd>F9</kbd></td><td>누적 초기화</td></tr>
+      <tr><td class="k">프롬프터 (중간부터)</td><td class="key"><kbd>Shift</kbd> + <kbd>F9</kbd></td><td>편집창 커서 줄부터 시작</td></tr>
+      <tr><td class="k">시작 / 정지</td><td class="key"><kbd>Space</kbd></td><td>—</td></tr>
+      <tr><td class="k">처음으로</td><td class="key"><kbd>F10</kbd></td><td>누적은 유지</td></tr>
+      <tr><td class="k">속도 올리기</td><td class="key"><kbd>↓</kbd></td><td>+5 px/s</td></tr>
+      <tr><td class="k">속도 내리기</td><td class="key"><kbd>↑</kbd></td><td>−5 px/s</td></tr>
+      <tr><td class="k">위로 미세 이동</td><td class="key"><kbd>Shift</kbd> + <kbd>↑</kbd></td><td>40 px</td></tr>
+      <tr><td class="k">아래로 미세 이동</td><td class="key"><kbd>Shift</kbd> + <kbd>↓</kbd></td><td>40 px</td></tr>
+      <tr><td class="k">반 화면 위로</td><td class="key"><kbd>PgUp</kbd></td><td>—</td></tr>
+      <tr><td class="k">반 화면 아래로</td><td class="key"><kbd>PgDn</kbd></td><td>—</td></tr>
+      <tr><td class="k">글자 작게</td><td class="key"><kbd>←</kbd></td><td>−4</td></tr>
+      <tr><td class="k">글자 크게</td><td class="key"><kbd>→</kbd></td><td>+4</td></tr>
+      <tr><td class="k">운영자 바 표시</td><td class="key"><kbd>Tab</kbd></td><td>켜기 / 끄기</td></tr>
+      <tr><td class="k">프롬프터 닫기</td><td class="key"><kbd>Esc</kbd></td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h3>재지정 방법</h3>
+  <p>제어판 <b>단축키</b> 카드에서 오른쪽 버튼을 누르고 원하는 키를 입력하면 바로 지정됩니다.</p>
+  <ul>
+    <li><kbd>Esc</kbd> — 취소</li>
+    <li><kbd>Delete</kbd> — 지정 해제</li>
+    <li>이미 쓰이는 조합을 넣으면 기존 지정이 자동으로 비워집니다</li>
+  </ul>
+  <p>버튼에 표시되는 단축키 표기는 실제 지정값을 따라가므로, 키를 바꾸면 표기도 함께 바뀝니다.
+  <b>기본값으로 되돌리기</b> 로 위 표의 상태로 복구할 수 있습니다.</p>
+
+  <h3>마우스 조작</h3>
+  <p>제어판 <b>단축키</b> 카드 아래쪽에 마우스 조작이 함께 정리되어 있습니다.
+  키처럼 바꿀 수는 없고 보여 주기만 하는 항목이라 회색으로 구분해 두었습니다.</p>
+  <table>
+    <thead><tr><th>동작</th><th>조작</th></tr></thead>
+    <tbody>
+      <tr><td class="k">시작 / 정지</td><td>왼쪽 클릭</td></tr>
+      <tr><td class="k">위아래 이동</td><td>끌기</td></tr>
+      <tr><td class="k">속도 조절 · 주행 중</td><td>휠</td></tr>
+      <tr><td class="k">위아래 이동 · 정지 중</td><td>휠</td></tr>
+      <tr><td class="k">누적 시간 초기화</td><td>누적 숫자 클릭</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>원고 편집 중에는 기능키와 수식키 조합만 동작합니다</b>
+    <p><kbd>Space</kbd> 나 방향키를 단축키로 지정해도 편집창에 커서가 있을 때는 가로채지 않습니다.
+    타이핑을 방해하지 않기 위한 것입니다. 기본 단축키가 <kbd>F9</kbd> · <kbd>F10</kbd> 인 것도
+    <b>원고를 쓰는 도중에도 그대로 눌러 열 수 있게</b> 하기 위해서입니다.
+    프롬프터 화면에서는 지정한 키가 모두 동작합니다.</p>
+  </div>
+
+  <div class="note plain">
+    <b><kbd>F5</kbd> 와 <kbd>Ctrl</kbd>+<kbd>R</kbd> 은 막혀 있습니다</b>
+    <p>화면을 새로 고치는 키라 방송 중에 눌리면 원고가 날아갑니다.
+    프롬프터 열기에 더 이상 쓰이지 않더라도 차단은 그대로 두었습니다.</p>
+  </div>
+</section>
+
+<!-- ══ 9 실전 운용 절차 ═══════════════════════════════ -->
+<section class="ch">
+  <h2><i>9</i>실전 운용 절차</h2>
+
+  <h3>최초 설치 시 (한 번만)</h3>
+  <ol class="steps">
+    <li>모니터의 좌우반전 기능을 켭니다 (있는 경우)</li>
+    <li>제어판 맨 아래 <b>출력 · 미러</b> → <b>하프미러 리그 프리셋 적용</b></li>
+    <li>출력 배치 선택 — 복제 또는 확장</li>
+    <li>이전 버전을 쓰던 PC 라면 <b>단축키</b> 카드의 <b>기본값으로 되돌리기</b></li>
+    <li>프롬프터를 열고 유리에서 글이 바로 읽히는지 확인</li>
+    <li>출연자 위치에서 글자 크기와 큐 라인 위치를 맞춥니다</li>
+  </ol>
+  <p>설정은 자동 저장되므로 다음 실행에도 유지됩니다.</p>
+
+  <h3>방송 전 점검</h3>
+  <ol class="steps">
+    <li>원고를 붙여 넣거나 <b>불러오기</b></li>
+    <li>원고창 머리말의 줄 수 · 글자 수 · 낭독 추정 확인</li>
+    <li>상단의 <b>전체</b> 시간이 방송 길이에 맞는지 확인 — 다르면 속도를 조절합니다</li>
+    <li><b>프롬프터 (처음부터)</b> <kbd>F9</kbd> 로 열기</li>
+    <li>리허설로 한 번 읽어 보며 속도 조절</li>
+    <li>누적 숫자를 클릭해 0 으로 초기화</li>
+  </ol>
+  <div class="note plain">
+    <b>3번은 v3.0.1 부터 가능해진 절차입니다</b>
+    <p>프롬프터를 열기 전에도 전체 시간이 나오므로, 원고를 넣자마자 분량을 가늠할 수 있습니다.</p>
+  </div>
+  <div class="note warn">
+    <b>복제 배치 사용 시</b>
+    <p>편집 화면도 출연자 모니터에 그대로 나갑니다. 방송 직전에 반드시 프롬프터 모드로 들어가 두십시오.</p>
+  </div>
+
+  <h3>생방송 중 원고 수정</h3>
+  <ol class="steps">
+    <li><kbd>Space</kbd> 로 정지</li>
+    <li><kbd>Esc</kbd> 로 편집 모드 복귀</li>
+    <li>커서가 <b>정지한 시점에 화면 한가운데 있던 줄</b>로 자동 이동합니다. 그 줄은 편집창 중앙보다 살짝 위에 놓입니다</li>
+    <li>수정 후 <kbd>Shift</kbd> + <kbd>F9</kbd> (중간부터)로 복귀 — 커서가 놓인 줄부터 이어 읽습니다</li>
+  </ol>
+  <p>긴 원고에서 그 문장을 눈으로 찾아다닐 필요가 없습니다.</p>
+
+  <h3>엔지 대응</h3>
+  <ol class="steps">
+    <li><kbd>Space</kbd> 로 정지</li>
+    <li><kbd>PgUp</kbd> 또는 <kbd>Shift</kbd> + <kbd>↑</kbd> 로 되감기</li>
+    <li><kbd>Space</kbd> 로 재개</li>
+  </ol>
+  <p>되감은 구간을 다시 읽는 동안 누적 시간은 늘지 않습니다. 이전 최대 지점을 넘어서면 다시 흐르므로,
+  누적 시간이 완성본 길이에 가까운 값으로 유지됩니다.</p>
+</section>
+
+<!-- ══ 10 문제 해결 ═══════════════════════════════════ -->
+<section class="ch">
+  <h2><i>10</i>문제 해결</h2>
+  <table>
+    <thead><tr><th>증상</th><th>원인과 대처</th></tr></thead>
+    <tbody>
+      <tr><td class="k">유리에서 글이 거꾸로 보인다</td>
+          <td>모니터 반전과 소프트웨어 반전이 둘 다 켜져 두 번 뒤집힌 상태입니다.
+              <b>출력 · 미러 → 모니터 자체 반전 기능 사용</b> 을 선택하십시오.</td></tr>
+      <tr><td class="k">어제는 됐는데 오늘 반전이 안 된다</td>
+          <td>모니터 설정이 전원 재투입으로 풀렸을 수 있습니다. 모니터 OSD 를 확인하십시오.</td></tr>
+      <tr><td class="k"><kbd>F9</kbd> 를 눌러도 안 열린다</td>
+          <td>이전 버전에서 저장된 단축키가 남아 있습니다. <b>단축키 → 기본값으로 되돌리기</b>
+              를 누르거나, 표시된 키(<kbd>F5</kbd>)를 그대로 쓰십시오.</td></tr>
+      <tr><td class="k">설정을 바꿨는데 반영되지 않는다</td>
+          <td>저장된 설정이 새 기본값보다 우선합니다. 해당 항목을 직접 바꾸거나
+              기본값으로 되돌리기를 쓰십시오.</td></tr>
+      <tr><td class="k">확장 배치에서 모니터가 하나만 잡힌다</td>
+          <td><kbd>Win</kbd> + <kbd>P</kbd> → <b>확장</b> 으로 바꾼 뒤 <b>모니터 다시 검색</b> 을 누르십시오.</td></tr>
+      <tr><td class="k">주행 중 운영자 바가 안 보인다</td>
+          <td>의도된 동작입니다. <kbd>Tab</kbd> 으로 띄우십시오.</td></tr>
+      <tr><td class="k">불러온 원고의 한글이 깨진다</td>
+          <td>ANSI(CP949)로 저장된 파일입니다. 메모장에서 UTF-8 로 다시 저장하십시오.</td></tr>
+      <tr><td class="k">어절이 줄 끝에서 갈라진다</td>
+          <td><b>표시</b> 카드의 <b>어절 단위 줄바꿈</b> 을 켜십시오.</td></tr>
+      <tr><td class="k">프로그램이 실행되지 않는다</td>
+          <td><code>ChoflixPrompter.exe</code> 만 따로 꺼내 두지 않았는지 확인하십시오.
+              폴더 전체가 함께 있어야 합니다.</td></tr>
+      <tr><td class="k">exe 아이콘이 예전 것으로 보인다</td>
+          <td>윈도우 아이콘 캐시 문제입니다. 폴더를 다른 이름으로 풀거나 탐색기를 다시 시작하십시오.</td></tr>
+      <tr><td class="k">글자가 튀거나 스크롤이 끊긴다</td>
+          <td>다른 프로그램이 GPU 를 점유하고 있을 수 있습니다.
+              방송용 PC 에서는 불필요한 프로그램을 닫아 두십시오.</td></tr>
+      <tr><td class="k">편집 중 잔여 · 전체가 <code>00:00:00</code> 이다</td>
+          <td>v3.0 까지의 증상입니다. v3.0.1 에서 해결되었으므로 버전을 확인하십시오.
+              화면 왼쪽 위 로고 아래에 표시됩니다.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══ 11 파일 위치 ═══════════════════════════════════ -->
+<section class="ch">
+  <h2><i>11</i>파일 위치</h2>
+  <table>
+    <thead><tr><th>항목</th><th>경로</th></tr></thead>
+    <tbody>
+      <tr><td class="k">설정 · 단축키</td><td><code>%APPDATA%\CHOFLIX PROMPTER\config.json</code></td></tr>
+      <tr><td class="k">원고 자동 보존본</td><td><code>%APPDATA%\CHOFLIX PROMPTER\last_script.txt</code></td></tr>
+      <tr><td class="k">프로그램</td><td>압축을 푼 폴더의 <code>ChoflixPrompter.exe</code></td></tr>
+    </tbody>
+  </table>
+  <p>설정 파일을 지우면 모든 설정이 기본값으로 돌아갑니다.
+  다른 PC 로 설정을 옮기려면 <code>config.json</code> 을 복사하십시오.</p>
+  <p>주소창에 <code>%APPDATA%</code> 를 입력하면 해당 폴더가 열립니다.</p>
+
+  <div class="note">
+    <b>설정 파일이 깨진 경우</b>
+    <p>프로그램은 설정을 읽지 못하면 조용히 기본값으로 시작합니다. 설정 저장에 실패해도 작업을 막지 않습니다.
+    방송을 멈추게 하지 않는 것이 우선이기 때문입니다.</p>
+  </div>
+
+  <div class="note plain">
+    <b>v2 에서 올라오신 경우</b>
+    <p>v2 의 설정은 <code>%APPDATA%\CHOFLIX\Prompter\</code> 에 있었습니다.
+    v3 은 다른 폴더를 쓰므로 이전 설정을 이어받지 않습니다.
+    원고는 v2 폴더의 <code>last_script.txt</code> 를 열어 옮겨 붙이시면 됩니다.</p>
+  </div>
+
+  <div style="margin-top:20mm; padding-top:4mm; border-top:2px solid var(--accent);
+              display:flex; justify-content:space-between; font-size:9pt; color:var(--sub)">
+    <div><b style="color:var(--accent)">CHOFLIX PROMPTER</b> · CHOFLIX AI LAB</div>
+    <div>이 문서는 v3.0.1 기준으로 작성되었습니다.</div>
+  </div>
+</section>
+
+</body>
+</html>

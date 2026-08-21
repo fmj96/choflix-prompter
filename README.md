@@ -56,7 +56,7 @@ WPF 는 글자를 픽셀 격자에 맞춰 그리기 때문에 1픽셀과 2픽셀
 - 모든 단축키 재지정 가능, 설정은 파일로 유지
 - 주행 중 운영자 바는 나타나지 않습니다 — `Tab` 으로만 켜고 끕니다
 - 마우스: 클릭(시작/정지) · 드래그(이동) · 휠(주행 중 속도 / 정지 중 이동)
-- 프레임 진단 표시 및 기록 파일
+- 편집 중에도 잔여 · 전체 시간이 표시됩니다 — 커서가 놓인 줄부터 끝까지가 잔여입니다
 
 ## 개발 실행
 
@@ -64,6 +64,19 @@ WPF 는 글자를 픽셀 격자에 맞춰 그리기 때문에 1픽셀과 2픽셀
 npm install
 npm start
 ```
+
+Mac 에서 Windows 배포본만 만들 때는 Mac 용 Electron 을 받지 않습니다.
+이 경우 `npm start` 는 동작하지 않으므로, 화면 확인은 브라우저 껍데기로 합니다.
+
+```bash
+npm install --ignore-scripts
+python3 -m http.server 5178
+```
+
+띄운 뒤 `http://localhost:5178/dev/preview.html` 을 엽니다.
+`src/` 를 그때그때 읽어 오므로 원본을 고치면 새로고침만 하면 됩니다.
+편집 콘솔의 배치 · 시간 계산 · 운영자 바까지 확인되고,
+파일 저장 · 모니터 배치 · 확장 배치 출력 창은 흉내만 냅니다.
 
 ## 배포본 만들기
 
@@ -81,9 +94,9 @@ npm run build:win     # dist/ChoflixPrompter-win32-x64/
 
 | 동작 | 키 |
 |---|---|
-| 프롬프터 (처음부터 / 중간부터) | `F5` / `Shift + F5` |
+| 프롬프터 (처음부터 / 중간부터) | `F9` / `Shift + F9` |
 | 시작 / 정지 | `Space` |
-| 처음으로 | `F6` |
+| 처음으로 | `F10` |
 | 속도 내림 / 올림 | `↑` / `↓` |
 | 미세 이동 | `Shift + ↑ ↓` |
 | 반 화면 이동 | `PgUp` / `PgDn` |
@@ -99,7 +112,6 @@ npm run build:win     # dist/ChoflixPrompter-win32-x64/
 |---|---|
 | 설정 · 단축키 | `%APPDATA%\CHOFLIX PROMPTER\config.json` |
 | 원고 자동 보존본 | `%APPDATA%\CHOFLIX PROMPTER\last_script.txt` |
-| 진단 기록 | `%APPDATA%\CHOFLIX PROMPTER\logs\` |
 
 ## 구조
 
@@ -112,6 +124,8 @@ src/
   engine.js     주행 엔진 (두 창이 공유)
   app.js        콘솔 동작 · 설정 · 단축키
   style.css     부조 콘솔 테마
+dev/
+  preview.html  브라우저로 편집 콘솔만 열어 보는 껍데기 (배포본에 미포함)
 ```
 
 주행 엔진은 한 벌이며, 복제 배치에서는 콘솔 창 안에서, 확장 배치에서는 출력 창에서 돕니다.

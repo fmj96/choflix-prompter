@@ -8,7 +8,7 @@
  */
 class Engine {
   constructor(el) {
-    this.el = el;                       // { lines, cue, hud, hudElapsed, hudRemain, mirror, stage, fstat }
+    this.el = el;                       // { lines, cue, hud, hudElapsed, hudRemain, mirror, stage }
     this.offset = 0;
     this.maxReach = 0;                  // 지금까지 읽어 내려간 가장 먼 지점 (엔지 재독 판별)
     this.running = false;
@@ -20,7 +20,6 @@ class Engine {
 
     this._raf = null;
     this._last = 0;
-    this._statT = 0; this._frames = 0; this._worst = 0; this._dropped = 0;
     this._uiT = 0;
     this._drag = null;
 
@@ -54,7 +53,6 @@ class Engine {
     });
     this.el.hud.style.color = this._fade(s.cue, .35);
     this.el.hud.style.display = s.talentTimer ? '' : 'none';
-    this.el.fstat.style.display = s.showStats ? '' : 'none';
 
     const rebuilt = first || !prev || prev.text !== s.text;
     if (rebuilt) this._build();
@@ -131,11 +129,9 @@ class Engine {
     if (this.max() - this.offset <= 1) return;
     this.running = true;
     this._last = performance.now();
-    this._statT = this._last;
     const step = now => {
       if (!this.running) return;
       const dt = (now - this._last) / 1000;
-      const gap = now - this._last;
       this._last = now;
 
       const before = this.offset;
@@ -149,12 +145,7 @@ class Engine {
         this.maxReach = this.offset;
       }
 
-      this._frames++;
-      if (gap > this._worst) this._worst = gap;
-      if (gap > 30) this._dropped++;
-
       if (now - this._uiT >= 200) { this._uiT = now; this._report(false); }
-      if (now - this._statT >= 1000) this._stat(now);
 
       if (this.offset >= this.max()) { this.stop(); return; }
       this._raf = requestAnimationFrame(step);
@@ -172,15 +163,6 @@ class Engine {
   }
 
   toggle() { this.running ? this.stop() : this.start(); }
-
-  _stat(now) {
-    const fps = this._frames * 1000 / (now - this._statT);
-    this.el.fstat.textContent =
-      `${fps.toFixed(1)} fps · 최대 ${this._worst.toFixed(1)}ms · 드롭 ${this._dropped}\n` +
-      `${this.s.speed} px/s · 프레임당 ${(this.s.speed / 60).toFixed(3)}px`;
-    this.onReport({ kind: 'stat', fps, worst: this._worst, dropped: this._dropped, speed: this.s.speed });
-    this._frames = 0; this._worst = 0; this._dropped = 0; this._statT = now;
-  }
 
   _report(force) {
     const max = this.max();
@@ -222,7 +204,7 @@ class Engine {
       const clicked = !this._drag.moved;
       this._drag = null;
       st.style.cursor = 'pointer';
-      if (clicked && this.s?.mouseCtl) this.toggle();
+      if (clicked) this.toggle();          // 화면 왼쪽 클릭은 기본 동작이다
     });
 
     st.addEventListener('wheel', e => {

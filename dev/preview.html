@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>CHOFLIX PROMPTER — 브라우저 미리보기</title>
+</head>
+<body>
+<script>
+/*
+ * 편집 콘솔을 브라우저에서 열어 보기 위한 껍데기.
+ *
+ * src/ 를 복사하지 않고 그때그때 읽어 온다. 원본을 고치면 새로고침만 하면 된다.
+ * Electron 창이 아니므로 파일 저장 · 모니터 배치 · 출력 창은 흉내만 낸다.
+ * 확인할 수 있는 것은 편집 콘솔의 배치 · 시간 계산 · 운영자 바까지다.
+ */
+(async () => {
+  // 고친 것이 안 보이는 일이 없도록 매번 새로 받는다
+  const fresh = p => p + '?t=' + Date.now();
+
+  const html = await (await fetch(fresh('/src/index.html'), { cache: 'no-store' })).text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  const css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = fresh('/src/style.css');
+  document.head.append(css);
+
+  doc.querySelectorAll('script').forEach(s => s.remove());
+  document.body.innerHTML = doc.body.innerHTML;
+
+  // 실행 순서를 지켜야 한다 — 통로 → 엔진 → 콘솔
+  for (const src of ['/dev/cx-stub.js', '/src/engine.js', '/src/app.js']) {
+    await new Promise((ok, fail) => {
+      const s = document.createElement('script');
+      s.src = fresh(src); s.onload = ok; s.onerror = fail;
+      document.body.append(s);
+    });
+  }
+})();
+</script>
+</body>
+</html>

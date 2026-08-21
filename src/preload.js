@@ -20,11 +20,5 @@ contextBridge.exposeInMainWorld('cx', {
   loadScript:  ()          => ipcRenderer.invoke('script:load'),
   saveScript:  (t)         => ipcRenderer.invoke('script:save', t),
   importScript:()          => ipcRenderer.invoke('script:import'),
-  exportScript:(t)         => ipcRenderer.invoke('script:export', t),
-
-  // 진단
-  logStart:    (h)         => ipcRenderer.invoke('log:start', h),
-  logStop:     ()          => ipcRenderer.invoke('log:stop'),
-  logLine:     (l)         => ipcRenderer.send('log:line', l),
-  logOpen:     ()          => ipcRenderer.invoke('log:open')
+  exportScript:(t)         => ipcRenderer.invoke('script:export', t)
 });

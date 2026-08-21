@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -6,7 +6,6 @@ const fs = require('fs');
 const dir = () => app.getPath('userData');
 const CONFIG = () => path.join(dir(), 'config.json');
 const SCRIPT = () => path.join(dir(), 'last_script.txt');
-const LOGDIR = () => path.join(dir(), 'logs');
 
 let consoleWin = null;
 let stageWin = null;
@@ -162,33 +161,6 @@ ipcMain.handle('script:export', async (_e, text) => {
   if (r.canceled || !r.filePath) return false;
   try { fs.writeFileSync(r.filePath, text ?? '', 'utf8'); return true; } catch { return false; }
 });
-
-// ── 진단 기록 ──────────────────────────────────────────────
-let logPath = null;
-let logBuf = [];
-let logTimer = null;
-
-ipcMain.handle('log:start', (_e, header) => {
-  try {
-    fs.mkdirSync(LOGDIR(), { recursive: true });
-    const stamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '').replace(/(\d{8})(\d{6})/, '$1_$2');
-    logPath = path.join(LOGDIR(), `frame_${stamp}.log`);
-    fs.writeFileSync(logPath, header, 'utf8');
-    logTimer = setInterval(flushLog, 2000);
-    return logPath;
-  } catch { logPath = null; return null; }
-});
-
-ipcMain.handle('log:stop', () => { flushLog(); clearInterval(logTimer); logTimer = null; logPath = null; return true; });
-ipcMain.on('log:line', (_e, line) => { if (logPath) logBuf.push(line); });
-ipcMain.handle('log:open', () => { fs.mkdirSync(LOGDIR(), { recursive: true }); shell.openPath(LOGDIR()); return true; });
-
-function flushLog() {
-  if (!logPath || logBuf.length === 0) return;
-  const chunk = logBuf.join('\n') + '\n';
-  logBuf = [];
-  fs.appendFile(logPath, chunk, 'utf8', () => {});
-}
 
 // ── 수명 ───────────────────────────────────────────────────
 app.whenReady().then(createConsole);

@@ -13,17 +13,16 @@ const DEFAULTS = {
   ink: '#FFFFFF', back: '#000000', cue: '#F0A020',
   showCue: true, cuePos: 35, talentTimer: true,
   editorPreview: true, keepAll: true,
-  speed: 55, mouseCtl: true,
+  speed: 55,
   output: 'duplicate', displayId: null,
-  mirrorBy: 'monitor', mirrorH: false, mirrorV: false,
-  showStats: false, logging: false
+  mirrorBy: 'monitor', mirrorH: false, mirrorV: false
 };
 
 const KEY_DEFS = [
-  ['togglePrompter', '프롬프터 (중간부터)', { code: 'F5', shift: true }],
-  ['startTop',       '프롬프터 (처음부터)', { code: 'F5' }],
+  ['startTop',       '프롬프터 (처음부터)', { code: 'F9' }],
+  ['togglePrompter', '프롬프터 (중간부터)', { code: 'F9', shift: true }],
   ['toggleRun',      '시작 / 정지',        { code: 'Space' }],
-  ['reset',          '처음으로',           { code: 'F6' }],
+  ['reset',          '처음으로',           { code: 'F10' }],
   ['speedUp',        '속도 올리기',         { code: 'ArrowDown' }],
   ['speedDown',      '속도 내리기',         { code: 'ArrowUp' }],
   ['nudgeUp',        '위로 미세 이동',      { code: 'ArrowUp', shift: true }],
@@ -53,7 +52,7 @@ let displays = [];
 // ══ 표시부 ════════════════════════════════════════════════
 const local = new Engine({
   stage: $('#stage'), mirror: $('#mirror'), lines: $('#lines'), cue: $('#cueline'),
-  hud: $('#hud'), hudElapsed: $('#hudElapsed'), hudRemain: $('#hudRemain'), fstat: $('#fstat')
+  hud: $('#hud'), hudElapsed: $('#hudElapsed'), hudRemain: $('#hudRemain')
 });
 
 let remote = false;
@@ -78,7 +77,6 @@ const stage = {
 
 function onReport(r) {
   if (r.kind === 'speed') { setSpeed(S.speed + r.delta); return; }
-  if (r.kind === 'stat') { logStat(r); return; }
   cache = r;
   paintClocks(r);
 }
@@ -96,13 +94,79 @@ function fmtSec(s) {
 
 function paintClocks(r) {
   $('#elapsed').textContent = $('#opElapsed').textContent = fmtSec(r.elapsed);
-  $('#remain').textContent  = $('#opRemain').textContent  = fmtSec(r.remain);
-  $('#total').textContent   = fmtSec(r.total);
   $('#progress').style.width = r.progress + '%';
   const on = r.running;
   $('#lamp').classList.toggle('on', on);
   $('#opLamp').classList.toggle('on', on);
   $('#opRun').textContent = on ? '정지' : '시작';
+
+  // 편집 중에는 출력 화면이 감춰져 있어 엔진이 재는 높이가 0 이다.
+  // 그동안은 따로 재 둔 추정값으로 채운다.
+  if (promptOpen) {
+    $('#remain').textContent = $('#opRemain').textContent = fmtSec(r.remain);
+    $('#total').textContent  = fmtSec(r.total);
+  } else paintEstimate();
+}
+
+// ══ 원고 길이 추정 ════════════════════════════════════════
+// 프롬프터가 닫혀 있으면 원고를 그리는 곳이 없어 높이를 잴 수 없다.
+// 실제로 출력될 모니터와 같은 폭으로 숨은 자리에 한 번 그려서 재고,
+// 그 높이를 속도로 나눠 잔여 · 전체 시간을 낸다.
+let mBox = null, mRows = [], mHeight = 0, mText = null, mTimer = null;
+
+/** 출력이 나갈 모니터. 복제 배치는 주 화면, 확장 배치는 고른 모니터. */
+function targetDisplay() {
+  if (!displays.length) return null;
+  return (S.output === 'extended'
+    ? displays.find(d => d.id === S.displayId)
+    : displays.find(d => d.primary)) ?? displays[0];
+}
+
+function remeasure() {
+  if (!mBox) {
+    mBox = document.createElement('div');
+    mBox.className = 'lines';
+    mBox.style.cssText = 'position:fixed;top:0;left:0;right:auto;visibility:hidden;pointer-events:none';
+    document.body.appendChild(mBox);
+  }
+  const d = targetDisplay();
+  Object.assign(mBox.style, {
+    width: Math.max(80, (d ? d.width : screen.width) * (1 - S.side * 2 / 100)) + 'px',
+    fontFamily: S.font,
+    fontSize: S.size + 'px',
+    fontWeight: S.weight,
+    lineHeight: S.lineHeight,
+    textAlign: S.align,
+    wordBreak: S.keepAll ? 'keep-all' : 'normal'
+  });
+  if (mText !== text) {
+    mText = text;
+    mBox.replaceChildren(...text.replace(/\r\n?/g, '\n').split('\n').map(t => {
+      const e = document.createElement('div');
+      e.className = 'ln';
+      e.textContent = t.length ? t : '\u00a0';
+      return e;
+    }));
+  }
+  mRows = [...mBox.children].map(e => e.offsetTop);
+  mHeight = mBox.scrollHeight;
+}
+
+/** 커서가 놓인 줄을 읽기 시작점으로 보고 잔여 시간을 낸다. */
+function paintEstimate() {
+  const v = Math.max(1, S.speed);
+  const from = mRows[Math.min(caretRow(), mRows.length - 1)] ?? 0;
+  $('#total').textContent = fmtSec(mHeight / v);
+  $('#remain').textContent = $('#opRemain').textContent = fmtSec(Math.max(0, mHeight - from) / v);
+}
+
+function estimate() { clearTimeout(mTimer); remeasure(); paintEstimate(); }
+
+/** 타자나 슬라이더가 이어지는 동안에는 멈춘 뒤 한 번만 잰다. */
+function scheduleEstimate() {
+  if (promptOpen) return;
+  clearTimeout(mTimer);
+  mTimer = setTimeout(estimate, 180);
 }
 
 // ══ 설정 반영 ═════════════════════════════════════════════
@@ -110,6 +174,7 @@ function applyAll() {
   stage.apply(S);
   paintEditor();
   paintHints();
+  scheduleEstimate();
   cx.saveConfig({ settings: S, keys: KEYS });
 }
 
@@ -164,13 +229,15 @@ let saveTimer = null, dirty = false;
 
 function setText(v, fromEditor) {
   text = v;
-  if (!fromEditor) $('#script').value = v;
+  // 값을 넣으면 커서가 원고 끝으로 가 버린다. 불러온 원고는 처음부터 읽는다.
+  if (!fromEditor) { $('#script').value = v; $('#script').setSelectionRange(0, 0); }
   const all = v.length, noSpace = v.replace(/\s/g, '').length, lines = v.split('\n').length;
   const est = noSpace / 330;
   $('#count').textContent =
     `${lines}줄 · ${all.toLocaleString()}자 (공백 제외 ${noSpace.toLocaleString()}자) · ` +
     `낭독 추정 ${String(Math.floor(est)).padStart(2,'0')}:${String(Math.floor(est%1*60)).padStart(2,'0')}`;
   dirty = true;
+  scheduleEstimate();
 
   // 글자 한 자마다 원고를 다시 만들면 긴 원고에서 타자가 밀린다.
   // 타자가 멈춘 뒤 한 번만 반영한다. 프롬프터를 열 때는 즉시 반영된다.
@@ -208,7 +275,6 @@ function editorToRow(row) {
   m.remove();
 
   t.scrollTop = Math.max(0, y - t.clientHeight * 0.42);
-  $('#notice').textContent = `정지한 위치로 이동했습니다 · ${row + 1}번째 줄`;
 }
 
 // ══ 모드 전환 ═════════════════════════════════════════════
@@ -216,6 +282,7 @@ async function enterPrompter({ fromTop = false, fromCaret = false } = {}) {
   if (promptOpen) return;
   if (dirty) { dirty = false; cx.saveScript(text); }
   clearTimeout(applyTimer);
+  clearTimeout(mTimer);
   stage.apply(S);
 
   const row = caretRow();
@@ -240,14 +307,12 @@ async function enterPrompter({ fromTop = false, fromCaret = false } = {}) {
   barShown = false;
   $('#opbar').classList.remove('on');
   paintButtons();
-  logMark(`프롬프터 열기 (${remote ? '확장' : '복제'})`);
 }
 
 async function exitPrompter() {
   if (!promptOpen) return;
   const row = stage.row;
   stage.stop();
-  logMark('프롬프터 닫기');
 
   if (remote) await cx.closeStage();
   else {
@@ -261,14 +326,13 @@ async function exitPrompter() {
   barShown = false;
   $('#opbar').classList.remove('on');
   paintButtons();
-  requestAnimationFrame(() => { paintEditor(); editorToRow(row); });
+  requestAnimationFrame(() => { paintEditor(); editorToRow(row); estimate(); });
 }
 
 function toggleBar() {
   if (!promptOpen || remote) return;
   barShown = !barShown;
   $('#opbar').classList.toggle('on', barShown);
-  logMark(barShown ? '운영자 바 표시' : '운영자 바 숨김');
 }
 
 function paintButtons() {
@@ -361,33 +425,6 @@ function act(id) {
   return false;
 }
 
-// ══ 진단 기록 ═════════════════════════════════════════════
-function logHeader() {
-  const d = displays.map((x, i) =>
-    `모니터 ${i + 1}    ${x.width}×${x.height} @ 배율 ${x.scale}${x.primary ? '  (주 화면)' : ''}`).join('\n');
-  return [
-    'CHOFLIX PROMPTER — 프레임 진단 기록',
-    `기록 시작   ${new Date().toLocaleString('ko-KR')}`,
-    `엔진        Electron / Chromium`,
-    `출력 배치   ${S.output === 'extended' ? '확장' : '복제'}`,
-    `글자 크기   ${S.size}   줄 간격 ${S.lineHeight}   어절 줄바꿈 ${S.keepAll ? '켬' : '끔'}`,
-    `원고        ${text.length.toLocaleString()}자`,
-    d,
-    '-'.repeat(78),
-    '시각            fps      최대 간격    드롭   속도      상태',
-    '-'.repeat(78), ''
-  ].join('\n');
-}
-const stamp = () => new Date().toTimeString().slice(0, 8) + '.' +
-  String(new Date().getMilliseconds()).padStart(3, '0');
-const logMark = w => { if (S.logging) cx.logLine(`${stamp()}  [조작] ${w}`); };
-const logStat = r => {
-  if (!S.logging) return;
-  const flag = r.dropped > 0 ? '  ← 끊김' : '';
-  cx.logLine(`${stamp()}  ${r.fps.toFixed(1).padStart(5)} fps   최대 ${r.worst.toFixed(1).padStart(5)} ms   ` +
-             `드롭 ${String(r.dropped).padStart(2)}   ${String(r.speed).padStart(3)} px/s   주행${flag}`);
-};
-
 // ══ UI 묶기 ═══════════════════════════════════════════════
 function bindRange(id, key, fmt, extra) {
   const el = $('#' + id), out = $('#' + id + 'V');
@@ -423,10 +460,7 @@ function syncInputs() {
   $('#talentTimer').checked = S.talentTimer;
   $('#editorPreview').checked = S.editorPreview;
   $('#keepAll').checked = S.keepAll;
-  $('#mouseCtl').checked = S.mouseCtl;
   $('#mirH').checked = S.mirrorH; $('#mirV').checked = S.mirrorV;
-  $('#showStats').checked = S.showStats;
-  $('#logging').checked = S.logging;
   $('#speed').value = $('#opSpeed').value = S.speed;
   $('#speedV').value = $('#opSpeedV').value = S.speed + ' px/s';
 }
@@ -457,15 +491,7 @@ function bindAll() {
   const chk = (id, key) => $('#' + id).onchange = e => { S[key] = e.target.checked; applyAll(); };
   chk('showCue', 'showCue'); chk('talentTimer', 'talentTimer');
   chk('editorPreview', 'editorPreview'); chk('keepAll', 'keepAll');
-  chk('mouseCtl', 'mouseCtl'); chk('mirH', 'mirrorH'); chk('mirV', 'mirrorV');
-  chk('showStats', 'showStats');
-
-  $('#logging').onchange = async e => {
-    S.logging = e.target.checked;
-    if (S.logging) await cx.logStart(logHeader()); else await cx.logStop();
-    applyAll();
-  };
-  $('#openLogs').onclick = () => cx.logOpen();
+  chk('mirH', 'mirrorH'); chk('mirV', 'mirrorV');
 
   swatches('#swInk', INKS, 'ink');
   swatches('#swBack', BACKS, 'back');
@@ -493,6 +519,8 @@ function bindAll() {
 
   $('#script').oninput = e => setText(e.target.value, true);
   $('#script').addEventListener('input', () => { $('#notice').textContent = ''; });
+  ['click', 'keyup', 'select'].forEach(ev =>
+    $('#script').addEventListener(ev, () => { if (!promptOpen) paintEstimate(); }));
   $('#import').onclick = async () => { const t = await cx.importScript(); if (t !== null) setText(t); };
   $('#export').onclick = () => cx.exportScript(text);
 
@@ -537,7 +565,7 @@ async function loadDisplays() {
 
   dirty = false;
   applyAll();
-  if (S.logging) cx.logStart(logHeader());
+  estimate();
 })();
 
 addEventListener('beforeunload', () => { cx.saveScript(text); cx.saveConfig({ settings: S, keys: KEYS }); });

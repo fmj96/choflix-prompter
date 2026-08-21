@@ -4,7 +4,7 @@ const el = id => document.getElementById(id);
 
 const engine = new Engine({
   stage: el('stage'), mirror: el('mirror'), lines: el('lines'), cue: el('cueline'),
-  hud: el('hud'), hudElapsed: el('hudElapsed'), hudRemain: el('hudRemain'), fstat: el('fstat')
+  hud: el('hud'), hudElapsed: el('hudElapsed'), hudRemain: el('hudRemain')
 });
 
 engine.onReport = r => cx.report(r);

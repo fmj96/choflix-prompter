@@ -14,7 +14,7 @@
   <div class="card top">
     <div class="brand">
       <i class="lamp" id="lamp"></i>
-      <div><h1>CHOFLIX PROMPTER</h1><small>CHOFLIX AI LAB · v3.1.0</small></div>
+      <div><h1>CHOFLIX PROMPTER</h1><small>CHOFLIX AI LAB · v3.2.0</small></div>
     </div>
 
     <div class="clocks">
@@ -44,11 +44,13 @@
         <span style="color:var(--muted);font-size:11px;font-weight:600">원고</span>
         <span id="count"></span>
         <span class="sp"></span>
+        <span class="inkbar" id="inkBar" title="글자를 끌어 고른 뒤 색을 누르십시오"></span>
         <span id="notice"></span>
         <button class="sm" id="import">불러오기</button>
         <button class="sm" id="export">저장</button>
       </header>
-      <textarea id="script" spellcheck="false" placeholder="원고를 입력하거나 [불러오기] 로 파일을 여십시오."></textarea>
+      <div id="script" contenteditable="true" spellcheck="false"
+           data-placeholder="원고를 입력하거나 [불러오기] 로 파일을 여십시오."></div>
     </div>
 
     <!-- 제어판 -->
@@ -194,6 +196,7 @@
   <div class="progress"><i id="progress"></i></div>
 </div>
 
+<script src="richtext.js"></script>
 <script src="tracker.js"></script>
 <script src="follow.js"></script>
 <script src="mic.js"></script>

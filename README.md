@@ -48,6 +48,7 @@ WPF 는 글자를 픽셀 격자에 맞춰 그리기 때문에 1픽셀과 2픽셀
 - 복제·확장 출력 배치 모두 지원, 프리셋 버튼으로 한 번에 설정
 
 **편집**
+- **글자를 끌어 고른 뒤 색을 입힙니다** — 강조할 단어를 눈에 띄게 (v3.2)
 - 편집창에 프롬프터와 같은 글꼴·크기·**줄 간격**·색·정렬·굵기가 그대로 적용됩니다
 - 주행을 멈추고 나오면 읽던 줄로 커서가 자동 이동합니다
 - 원고 5초마다 자동 보존 (임시 파일 교체 방식)
@@ -119,7 +120,7 @@ npm run build:win     # dist/ChoflixPrompter-win32-x64/
 | 항목 | 경로 |
 |---|---|
 | 설정 · 단축키 | `%APPDATA%\CHOFLIX PROMPTER\config.json` |
-| 원고 자동 보존본 | `%APPDATA%\CHOFLIX PROMPTER\last_script.txt` |
+| 원고 자동 보존본 | `%APPDATA%\CHOFLIX PROMPTER\last_script.html` |
 
 ## 구조
 
@@ -132,6 +133,7 @@ src/
   engine.js     주행 엔진 (두 창이 공유)
   app.js        콘솔 동작 · 설정 · 단축키
   style.css     부조 콘솔 테마
+  richtext.js   색 있는 원고 다루기 · 정화 (보안 경계)
   tracker.js    들린 말 → 대본 위치 (음성 추종의 심장)
   follow.js     대본 위치 → 주행 속도
   mic.js        마이크 → 0.2초 조각

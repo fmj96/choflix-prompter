@@ -63,7 +63,8 @@ class Engine {
     const rebuilt = first || !prev || prev.text !== s.text;
     if (rebuilt) {
       this._build();
-      this.tracker.setScript((s.text || '').replace(/\r\n?/g, '\n').split('\n'));
+      // 음성 추종은 글자만 본다. 색 태그가 섞이면 맞출 수가 없다.
+      this.tracker.setScript((s.text || '').replace(/\r\n?/g, '\n').split('\n').map(rtPlain));
     }
     this._layout(!rebuilt && prev && (prev.size !== s.size || prev.lineHeight !== s.lineHeight
                                       || prev.side !== s.side || prev.font !== s.font));
@@ -80,7 +81,10 @@ class Engine {
     this.el.lines.replaceChildren(...lines.map(t => {
       const d = document.createElement('div');
       d.className = 'ln';
-      d.textContent = t.length ? t : '\u00a0';
+      // 원고에는 색이 들어간 span 이 섞일 수 있다.
+      // 바깥에서 들어온 원고도 반드시 richtext 의 정화를 거친 것만 그린다.
+      if (t.includes('<')) d.innerHTML = rtParse(t).join('') || '&nbsp;';
+      else d.textContent = t.length ? t : '\u00a0';
       return d;
     }));
   }

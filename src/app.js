@@ -147,7 +147,7 @@ function remeasure() {
   });
   if (mText !== text) {
     mText = text;
-    mBox.replaceChildren(...text.replace(/\r\n?/g, '\n').split('\n').map(t => {
+    mBox.replaceChildren(...plainOf(text).replace(/\r\n?/g, '\n').split('\n').map(t => {
       const e = document.createElement('div');
       e.className = 'ln';
       e.textContent = t.length ? t : '\u00a0';
@@ -336,11 +336,22 @@ function setSpeed(v, byHand) {
 // ══ 원고 ══════════════════════════════════════════════════
 let saveTimer = null, dirty = false;
 
+/** 편집창에서 지금 내용을 읽어 '줄마다 인라인 HTML' 로 돌려준다. */
+function readEditor() {
+  return rtParse($('#script').innerHTML).join('\n');
+}
+
+/** 원고의 글자만. 글자수 · 시간 계산 · 음성 추종이 쓴다. */
+const plainOf = html => (html || '').split('\n').map(rtPlain).join('\n');
+
 function setText(v, fromEditor) {
   text = v;
-  // 값을 넣으면 커서가 원고 끝으로 가 버린다. 불러온 원고는 처음부터 읽는다.
-  if (!fromEditor) { $('#script').value = v; $('#script').setSelectionRange(0, 0); }
-  const all = v.length, noSpace = v.replace(/\s/g, '').length, lines = v.split('\n').length;
+  if (!fromEditor) {
+    $('#script').innerHTML = rtToEditor(v.split('\n'));
+    caretToStart();              // 불러온 원고는 처음부터 읽는다
+  }
+  const p = plainOf(v);
+  const all = p.length, noSpace = p.replace(/\s/g, '').length, lines = v.split('\n').length;
   const est = noSpace / 330;
   $('#count').textContent =
     `${lines}줄 · ${all.toLocaleString()}자 (공백 제외 ${noSpace.toLocaleString()}자) · ` +
@@ -355,41 +366,141 @@ function setText(v, fromEditor) {
 }
 let applyTimer = null;
 
-setInterval(() => { if (dirty) { dirty = false; cx.saveScript(text); } }, 5000);
+const fileText = () => rtToFile(text.split('\n'));
+setInterval(() => { if (dirty) { dirty = false; cx.saveScript(fileText()); } }, 5000);
 
 // ══ 편집창 ↔ 원고 줄 ══════════════════════════════════════
 function caretRow() {
-  const t = $('#script');
-  return t.value.slice(0, t.selectionStart).split('\n').length - 1;
+  const el = $('#script');
+  const sel = getSelection();
+  if (!sel.rangeCount) return 0;
+  let n = sel.anchorNode;
+  if (n === el) return Math.min(sel.anchorOffset, el.children.length - 1);
+  while (n && n.parentNode !== el) n = n.parentNode;
+  const i = n ? [...el.children].indexOf(n) : 0;
+  return i < 0 ? 0 : i;
+}
+
+function caretToStart() {
+  const el = $('#script');
+  if (!el.firstChild) return;
+  const r = document.createRange();
+  r.setStart(el.firstChild, 0);
+  r.collapse(true);
+  const sel = getSelection();
+  sel.removeAllRanges();
+  sel.addRange(r);
+  el.scrollTop = 0;
 }
 
 /** 지정한 줄이 편집창 중앙보다 살짝 위에 오도록 스크롤한다. */
 function editorToRow(row) {
-  const t = $('#script');
-  const idx = t.value.split('\n').slice(0, row).reduce((n, l) => n + l.length + 1, 0);
-  t.focus();
-  t.setSelectionRange(idx, idx);
+  const el = $('#script');
+  const i = Math.max(0, Math.min(el.children.length - 1, row));
+  const line = el.children[i];
+  if (!line) return;
+  const r = document.createRange();
+  r.setStart(line, 0);
+  r.collapse(true);
+  const sel = getSelection();
+  sel.removeAllRanges();
+  sel.addRange(r);
+  el.focus();
+  el.scrollTop = Math.max(0, line.offsetTop - el.clientHeight * 0.42);
+}
 
-  const m = document.createElement('div');
-  const cs = getComputedStyle(t);
-  Object.assign(m.style, {
-    position: 'absolute', visibility: 'hidden', whiteSpace: 'pre-wrap',
-    wordBreak: cs.wordBreak, overflowWrap: 'break-word',
-    width: t.clientWidth + 'px', font: cs.font, lineHeight: cs.lineHeight,
-    padding: cs.padding, letterSpacing: cs.letterSpacing, textAlign: cs.textAlign
-  });
-  m.textContent = t.value.slice(0, idx) || ' ';
-  document.body.appendChild(m);
-  const y = m.scrollHeight;
-  m.remove();
+// ══ 글자색 ════════════════════════════════════════════════
+// 끌어서 고른 글자에만 색을 입힌다. 원고 전체 글자색(표시 설정)과는 별개로,
+// 특정 단어를 눈에 띄게 하려는 용도다.
 
-  t.scrollTop = Math.max(0, y - t.clientHeight * 0.42);
+function buildInkBar() {
+  $('#inkBar').replaceChildren(...RT_COLORS.map(c => {
+    const i = document.createElement('i');
+    if (c.hex) i.style.background = c.hex; else i.className = 'none';
+    i.title = c.name + ' — 고른 글자에 적용';
+    i.onclick = () => applyInk(c.hex);
+    return i;
+  }));
+}
+
+function applyInk(hex) {
+  const el = $('#script');
+  const sel = getSelection();
+  if (!sel.rangeCount || sel.isCollapsed || !el.contains(sel.anchorNode)) {
+    $('#notice').textContent = '색을 입힐 글자를 먼저 끌어서 고르십시오.';
+    return;
+  }
+  const r = sel.getRangeAt(0);
+  const a = spot(el, r.startContainer, r.startOffset);
+  const b = spot(el, r.endContainer, r.endOffset);
+  if (!a || !b) return;
+
+  // 줄마다 해당 글자 구간에만 색을 지정한다
+  const lines = text.split('\n');
+  for (let i = a.line; i <= b.line && i < lines.length; i++) {
+    const from = i === a.line ? a.at : 0;
+    const to   = i === b.line ? b.at : rtPlain(lines[i]).length;
+    if (to > from) lines[i] = rtSetColor(lines[i], from, to, hex);
+  }
+
+  const keep = el.scrollTop;        // 다시 그리면 맨 위로 튄다
+  setText(lines.join('\n'));        // 편집창을 다시 그린다
+  el.scrollTop = keep;
+  reselect(a, b);                   // 고른 자리를 그대로 둔다
+  $('#notice').textContent = '';
+}
+
+/** DOM 위치를 (줄 번호, 그 줄의 몇 번째 글자) 로 바꾼다. */
+function spot(el, node, offset) {
+  let n = node;
+  if (n === el) {
+    const i = Math.min(offset, el.children.length - 1);
+    return { line: i, at: 0 };
+  }
+  while (n && n.parentNode !== el) n = n.parentNode;
+  if (!n) return null;
+  const line = [...el.children].indexOf(n);
+  if (line < 0) return null;
+
+  let at = 0;
+  const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT);
+  let t;
+  while ((t = w.nextNode())) {
+    if (t === node) return { line, at: at + offset };
+    at += t.textContent.length;
+  }
+  return { line, at };                       // 글자 노드가 아니면 줄 끝으로 본다
+}
+
+/** 글자 위치로 다시 고른다. 색을 바꾼 뒤에도 선택이 풀리지 않게. */
+function reselect(a, b) {
+  const el = $('#script');
+  const find = p => {
+    const line = el.children[p.line];
+    if (!line) return null;
+    const w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT);
+    let n, acc = 0;
+    while ((n = w.nextNode())) {
+      if (acc + n.textContent.length >= p.at) return [n, p.at - acc];
+      acc += n.textContent.length;
+    }
+    return [line, line.childNodes.length];
+  };
+  const s0 = find(a), e0 = find(b);
+  if (!s0 || !e0) return;
+  const r = document.createRange();
+  r.setStart(s0[0], s0[1]);
+  r.setEnd(e0[0], e0[1]);
+  const sel = getSelection();
+  sel.removeAllRanges();
+  sel.addRange(r);
+  el.focus();
 }
 
 // ══ 모드 전환 ═════════════════════════════════════════════
 async function enterPrompter({ fromTop = false, fromCaret = false } = {}) {
   if (promptOpen) return;
-  if (dirty) { dirty = false; cx.saveScript(text); }
+  if (dirty) { dirty = false; cx.saveScript(fileText()); }
   clearTimeout(applyTimer);
   clearTimeout(mTimer);
   stage.apply(S);
@@ -644,12 +755,23 @@ function bindAll() {
   $('#elapsedBox').onclick = () => stage.resetElapsed();
   $('#opElapsedBox').onclick = e => { e.stopPropagation(); stage.resetElapsed(); };
 
-  $('#script').oninput = e => setText(e.target.value, true);
-  $('#script').addEventListener('input', () => { $('#notice').textContent = ''; });
+  $('#script').addEventListener('input', () => {
+    setText(readEditor(), true);
+    $('#notice').textContent = '';
+  });
+  // 붙여넣기는 글자만 받는다. 워드나 웹에서 가져온 서식이 섞이면 원고가 지저분해진다.
+  $('#script').addEventListener('paste', e => {
+    e.preventDefault();
+    const t = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, t);
+  });
   ['click', 'keyup', 'select'].forEach(ev =>
     $('#script').addEventListener(ev, () => { if (!promptOpen) paintEstimate(); }));
-  $('#import').onclick = async () => { const t = await cx.importScript(); if (t !== null) setText(t); };
-  $('#export').onclick = () => cx.exportScript(text);
+  $('#import').onclick = async () => {
+    const t = await cx.importScript();
+    if (t !== null) setText(rtFromFile(t).join('\n'));   // txt 든 html 이든 받는다
+  };
+  $('#export').onclick = () => cx.exportScript(fileText());
 
   $('#keyReset').onclick = () => {
     KEYS = Object.fromEntries(KEY_DEFS.map(([id, , def]) => [id, { ...def }]));
@@ -679,11 +801,12 @@ async function loadDisplays() {
   bindAll();
   syncInputs();
   buildKeyList();
+  buildInkBar();
   await loadDisplays();
 
   const prev = await cx.loadScript();
   if (prev?.text) {
-    setText(prev.text);
+    setText(rtFromFile(prev.text).join('\n'));
     const d = new Date(prev.at);
     $('#notice').textContent =
       `이전 원고를 복원했습니다 · ${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ` +
@@ -697,4 +820,4 @@ async function loadDisplays() {
   paintFollow();
 })();
 
-addEventListener('beforeunload', () => { cx.saveScript(text); cx.saveConfig({ settings: S, keys: KEYS }); });
+addEventListener('beforeunload', () => { cx.saveScript(fileText()); cx.saveConfig({ settings: S, keys: KEYS }); });

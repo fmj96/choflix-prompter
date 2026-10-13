@@ -5,7 +5,10 @@ const fs = require('fs');
 // ── 저장 위치 ──────────────────────────────────────────────
 const dir = () => app.getPath('userData');
 const CONFIG = () => path.join(dir(), 'config.json');
-const SCRIPT = () => path.join(dir(), 'last_script.txt');
+// 색이 들어간 원고를 담아야 해서 html 로 바꿨다.
+// 예전 txt 보존본도 계속 읽는다 — 쓰던 원고가 날아가면 안 된다.
+const SCRIPT = () => path.join(dir(), 'last_script.html');
+const SCRIPT_OLD = () => path.join(dir(), 'last_script.txt');
 
 let consoleWin = null;
 let stageWin = null;
@@ -161,10 +164,13 @@ ipcMain.handle('config:save', (_e, data) => {
 });
 
 ipcMain.handle('script:load', () => {
-  try {
-    if (!fs.existsSync(SCRIPT())) return null;
-    return { text: fs.readFileSync(SCRIPT(), 'utf8'), at: fs.statSync(SCRIPT()).mtimeMs };
-  } catch { return null; }
+  for (const p of [SCRIPT(), SCRIPT_OLD()]) {
+    try {
+      if (!fs.existsSync(p)) continue;
+      return { text: fs.readFileSync(p, 'utf8'), at: fs.statSync(p).mtimeMs };
+    } catch { /* 다음 후보로 */ }
+  }
+  return null;
 });
 
 /** 쓰다 만 파일이 남지 않도록 임시 파일에 먼저 쓴 뒤 바꿔치운다. */
@@ -181,7 +187,8 @@ ipcMain.handle('script:save', (_e, text) => {
 ipcMain.handle('script:import', async () => {
   const r = await dialog.showOpenDialog(consoleWin, {
     title: '원고 불러오기',
-    filters: [{ name: '텍스트 파일', extensions: ['txt'] }, { name: '모든 파일', extensions: ['*'] }],
+    filters: [{ name: '원고 파일', extensions: ['html', 'htm', 'txt'] },
+              { name: '모든 파일', extensions: ['*'] }],
     properties: ['openFile']
   });
   if (r.canceled || !r.filePaths[0]) return null;
@@ -192,8 +199,9 @@ ipcMain.handle('script:export', async (_e, text) => {
   const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
   const r = await dialog.showSaveDialog(consoleWin, {
     title: '원고 저장',
-    defaultPath: `prompter_${stamp}.txt`,
-    filters: [{ name: '텍스트 파일', extensions: ['txt'] }]
+    defaultPath: `prompter_${stamp}.html`,
+    filters: [{ name: '원고 파일 (색 유지)', extensions: ['html'] },
+              { name: '텍스트 파일', extensions: ['txt'] }]
   });
   if (r.canceled || !r.filePath) return false;
   try { fs.writeFileSync(r.filePath, text ?? '', 'utf8'); return true; } catch { return false; }

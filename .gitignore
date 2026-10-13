@@ -6,3 +6,4 @@ dist/
 .DS_Store
 models/
 dev/sample.json
+vendor/

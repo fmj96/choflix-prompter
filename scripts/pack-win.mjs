@@ -64,6 +64,8 @@ async function main() {
   cpSync(path.join(root, 'build'), path.join(app, 'build'), { recursive: true });
   cpSync(path.join(root, 'package.json'), path.join(app, 'package.json'));
 
+  voice(app);
+
   const exe = path.join(out, 'electron.exe');
   const target = path.join(out, `${NAME}.exe`);
   if (existsSync(exe)) renameSync(exe, target);
@@ -73,6 +75,39 @@ async function main() {
 
   console.log(`\n  완료 — dist/${NAME}-win32-x64/${NAME}.exe`);
   console.log('  이 폴더를 통째로 압축해 프롬프터 PC 로 옮기십시오.\n');
+}
+
+/**
+ * 음성 추종에 필요한 것을 넣는다 — 인식 모델과 Windows 네이티브 모듈.
+ *
+ * 없으면 건너뛴다. 음성 추종을 안 쓰는 배포본도 만들 수 있어야 한다.
+ * 모델은 용량 때문에 저장소에 넣지 않으므로(134MB) 빠져 있을 수 있다.
+ */
+function voice(app) {
+  const model = path.join(root, 'models', 'ko');
+  const native = path.join(root, 'vendor', 'sherpa-onnx-win-x64');
+  const js = path.join(root, 'node_modules', 'sherpa-onnx-node');
+
+  const missing = [
+    [model, 'models/ko (인식 모델)'],
+    [native, 'vendor/sherpa-onnx-win-x64 (Windows 네이티브)'],
+    [js, 'node_modules/sherpa-onnx-node'],
+  ].filter(([p]) => !existsSync(p));
+
+  if (missing.length) {
+    say('음성 추종 빼고 포장 — 없는 것:');
+    missing.forEach(([, n]) => say(`  · ${n}`));
+    say('  BUILD.md 의 "음성 추종" 항목을 보십시오.');
+    return;
+  }
+
+  say('음성 추종 넣는 중...');
+  cpSync(model, path.join(app, 'models', 'ko'), { recursive: true });
+  // addon.js 가 '../sherpa-onnx-win-x64/sherpa-onnx.node' 를 찾으므로 형제로 둔다
+  const nm = path.join(app, 'node_modules');
+  cpSync(js, path.join(nm, 'sherpa-onnx-node'), { recursive: true });
+  cpSync(native, path.join(nm, 'sherpa-onnx-win-x64'), { recursive: true });
+  say('인식 모델 + 네이티브 모듈 포함');
 }
 
 /**

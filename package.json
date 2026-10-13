@@ -1,6 +1,6 @@
 {
   "name": "choflix-prompter",
-  "version": "3.0.2",
+  "version": "3.1.0",
   "description": "CHOFLIX PROMPTER — 방송용 프롬프터",
   "author": "CHOFLIX AI Lab",
   "main": "src/main.js",
@@ -10,7 +10,8 @@
     "build:win": "node scripts/pack-win.mjs",
     "build:win:packager": "electron-packager . ChoflixPrompter --platform=win32 --arch=x64 --icon=build/app.ico --out=dist --overwrite --asar",
     "install:buildonly": "npm install --ignore-scripts",
-    "build:docs": "node docs-src/build-docs.mjs"
+    "build:docs": "node docs-src/build-docs.mjs",
+    "fetch:model": "node scripts/fetch-model.mjs"
   },
   "devDependencies": {
     "electron": "^33.0.0",

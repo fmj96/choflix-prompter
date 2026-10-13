@@ -75,6 +75,30 @@ ELECTRON_VERSION=33.4.11 npm run build:win
 `electron-v33.4.11-win32-x64.zip` 을 직접 받아 프로젝트의 `.cache/` 폴더에 넣으십시오.
 스크립트가 그 파일을 그대로 씁니다.
 
+### 음성 추종 자료
+
+인식 모델과 Windows 네이티브 모듈은 용량 때문에 저장소에 없습니다.
+처음 한 번만 받으면 됩니다.
+
+```bash
+npm run fetch:model
+```
+
+| 받는 것 | 크기 | 가는 곳 |
+|---|---|---|
+| 한국어 스트리밍 인식 모델 | 134MB | `models/ko/` |
+| Windows 네이티브 모듈 | 22MB | `vendor/sherpa-onnx-win-x64/` |
+
+이것 때문에 배포본이 270MB → **426MB** 가 됩니다.
+음성 추종이 필요 없으면 받지 마십시오 — 포장 스크립트가 알아서 빼고 만듭니다.
+
+> **왜 npm 으로 그냥 설치하지 않는가**
+>
+> `sherpa-onnx-win-x64` 는 Windows 전용으로 표시되어 있어 Mac 에서는 npm 이
+> 설치를 거부합니다. 그래서 tarball 을 직접 받아 `vendor/` 에 풉니다.
+> 포장할 때 `node_modules/sherpa-onnx-win-x64` 로 들어가는데,
+> `sherpa-onnx-node/addon.js` 가 형제 폴더에서 `.node` 를 찾기 때문입니다.
+
 ### exe 파일 아이콘
 
 포장할 때 `build/app.ico` (C 로고, 16~256px 7종) 를 exe 안에 심습니다.

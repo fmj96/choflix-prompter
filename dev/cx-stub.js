@@ -11,5 +11,16 @@ window.cx = {
   toStage() {}, onStageMsg() {}, report() {}, onReport() {}, onStageClosed() {},
   loadConfig: async () => null, saveConfig: async () => true,
   loadScript: async () => ({ text: SAMPLE, at: Date.now() }), saveScript: async () => true,
-  importScript: async () => null, exportScript: async () => true
+  importScript: async () => null, exportScript: async () => true,
+
+  // 음성 인식 — 브라우저에서는 흉내만 낸다
+  asrStart: async () => { setTimeout(() => _asr && _asr({ t: 'ready' }), 300); return true; },
+  asrStop:  async () => true,
+  asrPcm:   () => {},
+  asrReset: () => {},
+  onAsr:    fn => { _asr = fn; }
 };
+let _asr = null;
+
+/** 미리보기에서 추종을 시험하려면 콘솔에서 이걸 부른다. */
+window.fakeHeard = t => _asr && _asr({ t: 'text', w: t, redo: true });

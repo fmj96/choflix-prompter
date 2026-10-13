@@ -20,5 +20,12 @@ contextBridge.exposeInMainWorld('cx', {
   loadScript:  ()          => ipcRenderer.invoke('script:load'),
   saveScript:  (t)         => ipcRenderer.invoke('script:save', t),
   importScript:()          => ipcRenderer.invoke('script:import'),
-  exportScript:(t)         => ipcRenderer.invoke('script:export', t)
+  exportScript:(t)         => ipcRenderer.invoke('script:export', t),
+
+  // 음성 인식
+  asrStart:    (n)         => ipcRenderer.invoke('asr:start', n),
+  asrStop:     ()          => ipcRenderer.invoke('asr:stop'),
+  asrPcm:      (s)         => ipcRenderer.send('asr:pcm', s),
+  asrReset:    ()          => ipcRenderer.send('asr:reset'),
+  onAsr:       (fn)        => ipcRenderer.on('asr:msg', (_e, m) => fn(m))
 });

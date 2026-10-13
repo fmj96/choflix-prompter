@@ -15,8 +15,14 @@ class Engine {
     this.netSeconds = 0;                // 누적 진행 — 새로 읽은 분량만
     this.runSeconds = 0;                // 실주행 시간
     this.rows = [];                     // 줄별 세로 위치
+    this.heights = [];                  // 줄별 높이 (한 줄이 화면 여러 줄로 접힌다)
     this.s = null;
     this.onReport = () => {};
+
+    // ── 음성 추종 ──
+    this.tracker = new Tracker([]);     // 들린 말 → 대본 위치
+    this.follower = new Follower();     // 대본 위치 → 주행 속도
+    this.following = false;
 
     this._raf = null;
     this._last = 0;
@@ -55,7 +61,10 @@ class Engine {
     this.el.hud.style.display = s.talentTimer ? '' : 'none';
 
     const rebuilt = first || !prev || prev.text !== s.text;
-    if (rebuilt) this._build();
+    if (rebuilt) {
+      this._build();
+      this.tracker.setScript((s.text || '').replace(/\r\n?/g, '\n').split('\n'));
+    }
     this._layout(!rebuilt && prev && (prev.size !== s.size || prev.lineHeight !== s.lineHeight
                                       || prev.side !== s.side || prev.font !== s.font));
   }
@@ -86,6 +95,7 @@ class Engine {
     this.el.cue.style.display = this.s.showCue ? '' : 'none';
 
     this.rows = [...this.el.lines.children].map(d => d.offsetTop);
+    this.heights = [...this.el.lines.children].map(d => d.offsetHeight);
 
     if (ratio !== null) this.offset = Math.min(this.max(), ratio * this.max());
     this.offset = Math.max(0, Math.min(this.max(), this.offset));
@@ -108,8 +118,8 @@ class Engine {
     this._report(true);
   }
 
-  nudge(px)  { this.moveTo(this.offset + px); }
-  page(f)    { this.moveTo(this.offset + this.el.stage.clientHeight * f); }
+  nudge(px)  { this._handsOn(); this.moveTo(this.offset + px); }
+  page(f)    { this._handsOn(); this.moveTo(this.offset + this.el.stage.clientHeight * f); }
   toTop()    { this.maxReach = 0; this.moveTo(0, true); }
   toRow(i)   { this.moveTo(this.rows[Math.max(0, Math.min(this.rows.length - 1, i))] ?? 0, true); }
 
@@ -119,6 +129,31 @@ class Engine {
     let hit = 0;
     for (let i = 0; i < this.rows.length; i++) { if (this.rows[i] > target) break; hit = i; }
     return hit;
+  }
+
+  // ── 음성 추종 ───────────────────────────────────────
+  /** 자동 추종을 켜고 끈다. 위치는 건드리지 않는다 — 속도만 바뀐다. */
+  setFollow(on) {
+    if (on === this.following) return;
+    this.following = !!on;
+    if (this.following) this.follower.reset(this.s ? this.s.speed : 55);
+    this._report(true);
+  }
+
+  /** 인식된 말을 받는다. 들린 자리를 찾아 제어기에 넘긴다. */
+  heard(tail, now = performance.now() / 1000) {
+    if (!this.s) return;
+    const { pos, conf } = this.tracker.feed(tail);
+    this.follower.mark(this.tracker.yAt(this.rows, this.heights, pos), conf, now);
+    this._report(false);
+  }
+
+  /** 운영자가 손을 대면 추종을 끈다. 사람 손이 항상 우선이다. */
+  _handsOn() {
+    if (!this.following) return;
+    this.following = false;
+    this.onReport({ kind: 'manual' });
+    this._report(true);
   }
 
   resetElapsed() { this.netSeconds = 0; this.runSeconds = 0; this.maxReach = this.offset; this._report(true); }
@@ -134,14 +169,16 @@ class Engine {
       const dt = (now - this._last) / 1000;
       this._last = now;
 
+      // 추종 중에는 음성이 정한 속도로, 아니면 설정한 속도로 간다
+      const v = this.following ? this.follower.step(this.offset, dt) : this.s.speed;
       const before = this.offset;
-      this.offset = Math.min(this.max(), this.offset + this.s.speed * dt);
+      this.offset = Math.max(0, Math.min(this.max(), this.offset + v * dt));
       this._draw();
 
       this.runSeconds += dt;
       if (this.offset > this.maxReach) {
         const gained = this.offset - Math.max(this.maxReach, before);
-        if (gained > 0) this.netSeconds += gained / Math.max(1, this.s.speed);
+        if (gained > 0) this.netSeconds += gained / Math.max(1, Math.abs(v) || this.s.speed);
         this.maxReach = this.offset;
       }
 
@@ -174,7 +211,11 @@ class Engine {
       kind: 'state', running: this.running, offset: this.offset,
       elapsed: this.netSeconds, running_s: this.runSeconds,
       remain, total, progress: max > 0 ? this.offset / max * 100 : 0,
-      row: this.centerRow(), force: !!force
+      row: this.centerRow(), force: !!force,
+      following: this.following,
+      followState: this.following ? this.follower.state(performance.now() / 1000) : 'off',
+      followConf: this.follower.conf,
+      followSpeed: Math.round(this.follower.speed)
     });
   }
 
@@ -196,6 +237,7 @@ class Engine {
         st.style.cursor = 'ns-resize';
       }
       const dir = this.s.mirrorV ? -1 : 1;   // 상하 반전 시 손이 가는 방향과 맞춘다
+      this._handsOn();
       this.moveTo(this._drag.from - dy * dir);
     });
 
@@ -208,6 +250,8 @@ class Engine {
     });
 
     st.addEventListener('wheel', e => {
+      // 휠은 어느 분기로 가든 사람이 손을 댄 것이다. 분기보다 먼저 처리한다.
+      this._handsOn();
       if (this.running) {                    // 주행 중에는 속도, 멈춰 있으면 위치
         this.onReport({ kind: 'speed', delta: e.deltaY > 0 ? 5 : -5 });
         return;

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, dialog, utilityProcess } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -9,6 +9,7 @@ const SCRIPT = () => path.join(dir(), 'last_script.txt');
 
 let consoleWin = null;
 let stageWin = null;
+let asr = null;                 // 음성 인식 전담 프로세스
 
 // ── 창 ─────────────────────────────────────────────────────
 function createConsole() {
@@ -30,7 +31,7 @@ function createConsole() {
   consoleWin.once('ready-to-show', () => { consoleWin.maximize(); consoleWin.show(); });
   blockReload(consoleWin);
 
-  consoleWin.on('closed', () => { consoleWin = null; closeStage(); });
+  consoleWin.on('closed', () => { consoleWin = null; closeStage(); stopAsr(); });
 }
 
 /**
@@ -109,6 +110,42 @@ ipcMain.handle('window:fullscreen', (_e, on) => {
   return consoleWin.isFullScreen();
 });
 
+// ── 음성 인식 ──────────────────────────────────────────────
+/**
+ * 인식을 별도 프로세스에서 돌린다.
+ *
+ * 주행 화면이 도는 렌더러와 코어를 나눠 쓰게 하려는 것이다.
+ * 같은 스레드에 올리면 프레임이 밀려 글이 울컥거린다.
+ */
+const MODEL_DIR = () => path.join(__dirname, '..', 'models', 'ko');
+
+function toConsole(msg) {
+  if (consoleWin && !consoleWin.isDestroyed()) consoleWin.webContents.send('asr:msg', msg);
+}
+
+function startAsr(threads) {
+  stopAsr();
+  if (!fs.existsSync(path.join(MODEL_DIR(), 'tokens.txt'))) {
+    toConsole({ t: 'error', message: '인식 모델이 없습니다. models/ko 폴더를 확인하십시오.' });
+    return false;
+  }
+  asr = utilityProcess.fork(path.join(__dirname, 'asr-worker.js'), [], { stdio: 'ignore' });
+  asr.on('message', m => toConsole(m));
+  // 프로세스가 죽는 것은 '못 알아듣는 것'과 다르다. 시간으로 짐작하지 말고 여기서 알린다.
+  asr.on('exit', code => { asr = null; toConsole({ t: 'dead', code }); });
+  asr.postMessage({ t: 'start', model: MODEL_DIR(), threads: threads || 2 });
+  return true;
+}
+
+function stopAsr() {
+  if (asr) { try { asr.kill(); } catch {} asr = null; }
+}
+
+ipcMain.handle('asr:start', (_e, threads) => startAsr(threads));
+ipcMain.handle('asr:stop', () => { stopAsr(); return true; });
+ipcMain.on('asr:pcm', (_e, samples) => { if (asr) asr.postMessage({ t: 'pcm', samples }); });
+ipcMain.on('asr:reset', () => { if (asr) asr.postMessage({ t: 'reset' }); });
+
 // ── 파일 ───────────────────────────────────────────────────
 const readJson = (p, fallback) => {
   try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return fallback; }
@@ -164,5 +201,5 @@ ipcMain.handle('script:export', async (_e, text) => {
 
 // ── 수명 ───────────────────────────────────────────────────
 app.whenReady().then(createConsole);
-app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => { stopAsr(); app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createConsole(); });

@@ -25,11 +25,15 @@
   css.href = fresh('/src/style.css');
   document.head.append(css);
 
+  const keep = doc.cloneNode(true);
   doc.querySelectorAll('script').forEach(s => s.remove());
   document.body.innerHTML = doc.body.innerHTML;
 
-  // 실행 순서를 지켜야 한다 — 통로 → 엔진 → 콘솔
-  for (const src of ['/dev/cx-stub.js', '/src/engine.js', '/src/app.js']) {
+  // 실행 순서를 지켜야 한다 — 통로를 먼저, 그다음 원본이 적어 둔 순서대로.
+  // 목록을 여기 박아 두면 원본에 파일이 늘 때마다 어긋난다.
+  const srcs = ['/dev/cx-stub.js',
+    ...[...keep.querySelectorAll('script[src]')].map(e => '/src/' + e.getAttribute('src'))];
+  for (const src of srcs) {
     await new Promise((ok, fail) => {
       const s = document.createElement('script');
       s.src = fresh(src); s.onload = ok; s.onerror = fail;

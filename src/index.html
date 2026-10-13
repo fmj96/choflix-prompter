@@ -89,6 +89,24 @@
       </div>
 
       <div class="card">
+        <h2>음성 추종</h2>
+        <div class="hint">강의자가 읽는 자리에 맞춰 주행 속도를 저절로 맞춥니다.
+          휠이나 키를 건드리면 즉시 수동으로 돌아옵니다.</div>
+        <label class="chk"><input type="checkbox" id="followOn">음성 추종 사용</label>
+
+        <div class="hint" style="margin-top:8px">마이크</div>
+        <select id="micPick"></select>
+        <button class="sm" id="micRescan" style="margin-top:6px">마이크 다시 검색</button>
+
+        <div class="row" style="margin-top:10px">
+          <span>상태</span>
+          <b id="followState" class="badge">꺼짐</b>
+          <i class="level"><u id="micLevel"></u></i>
+        </div>
+        <div class="hint" id="followHint"></div>
+      </div>
+
+      <div class="card">
         <h2>색</h2>
         <div class="hint">글자색</div>
         <div class="swatches" id="swInk"></div>
@@ -165,6 +183,7 @@
       <span class="elapsed" id="opElapsed">00:00:00</span>
     </div>
     <div class="side right">
+      <button class="sm" id="opFollow">추종</button>
       <span class="lab">잔여</span>
       <span id="opRemain">00:00:00</span>
       <button class="go sm" id="opRun">시작</button>
@@ -175,6 +194,9 @@
   <div class="progress"><i id="progress"></i></div>
 </div>
 
+<script src="tracker.js"></script>
+<script src="follow.js"></script>
+<script src="mic.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
 </body>

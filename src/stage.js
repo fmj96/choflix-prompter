@@ -21,6 +21,8 @@ cx.onStageMsg(m => {
     case 'page':         engine.page(m.f); break;
     case 'resetElapsed': engine.resetElapsed(); break;
     case 'relayout':     engine.relayout(); break;
+    case 'heard':        engine.heard(m.tail); break;
+    case 'follow':       engine.setFollow(m.on); break;
   }
 });
 

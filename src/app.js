@@ -15,7 +15,8 @@ const DEFAULTS = {
   editorPreview: true, keepAll: true,
   speed: 55,
   output: 'duplicate', displayId: null,
-  mirrorBy: 'monitor', mirrorH: false, mirrorV: false
+  mirrorBy: 'monitor', mirrorH: false, mirrorV: false,
+  follow: false, micId: null
 };
 
 const KEY_DEFS = [
@@ -31,6 +32,7 @@ const KEY_DEFS = [
   ['pageDown',       '반 화면 아래로',      { code: 'PageDown' }],
   ['fontSmaller',    '글자 작게',          { code: 'ArrowLeft' }],
   ['fontLarger',     '글자 크게',          { code: 'ArrowRight' }],
+  ['toggleFollow',   '음성 추종 켜기 / 끄기', { code: 'F8' }],
   ['toggleBar',      '운영자 바 표시',      { code: 'Tab' }],
   ['exit',           '프롬프터 닫기',       { code: 'Escape' }]
 ];
@@ -71,14 +73,18 @@ const stage = {
   page:  f => remote ? send({ t: 'page', f })  : local.page(f),
   resetElapsed: () => remote ? send({ t: 'resetElapsed' }) : local.resetElapsed(),
   relayout: () => remote ? send({ t: 'relayout' }) : local.relayout(),
+  heard: tail => remote ? send({ t: 'heard', tail }) : local.heard(tail),
+  setFollow: on => remote ? send({ t: 'follow', on }) : local.setFollow(on),
   get running() { return remote ? cache.running : local.running; },
   get row() { return remote ? cache.row : local.centerRow(); }
 };
 
 function onReport(r) {
   if (r.kind === 'speed') { setSpeed(S.speed + r.delta); return; }
+  if (r.kind === 'manual') { following = false; paintFollow(); return; }  // 손이 닿으면 수동
   cache = r;
   paintClocks(r);
+  if (r.followState !== undefined) paintFollow(r);
 }
 local.onReport = onReport;
 cx.onReport(onReport);
@@ -169,6 +175,107 @@ function scheduleEstimate() {
   mTimer = setTimeout(estimate, 180);
 }
 
+// ══ 음성 추종 ═════════════════════════════════════════════
+// 인식은 별도 프로세스에서 돈다. 여기서는 소리를 넘기고 글자를 받아
+// 엔진에 전달하는 일만 한다 — 주행 프레임을 건드리지 않기 위해서다.
+let following = false;        // 지금 자동으로 따라가는 중인가
+let asrReady = false;
+let asrNote = '';             // 운영자에게 보여 줄 한마디
+let heardTail = '';           // 지금까지 들린 말의 꼬리
+let micPeak = 0;
+
+const mic = new Mic((pcm, peak) => {
+  micPeak = Math.max(micPeak, peak);
+  cx.asrPcm(pcm);
+});
+
+cx.onAsr(m => {
+  if (m.t === 'ready') { asrReady = true; asrNote = ''; }
+  else if (m.t === 'text') {
+    heardTail = m.redo ? m.w : heardTail + m.w;
+    if (norm(heardTail).length >= 8) stage.heard(heardTail);
+    // 문장이 길어지면 꼬리만 남긴다. 다음 문장과 섞이지 않게.
+    if (norm(heardTail).length > 60) heardTail = heardTail.slice(-40);
+  }
+  else if (m.t === 'beat') { asrReady = true; }
+  else if (m.t === 'error') { asrNote = m.message; following = false; }
+  else if (m.t === 'dead') {
+    // 못 알아듣는 것과 프로세스가 죽는 것은 다르다. 시간으로 짐작하지 않고 여기서 끊는다.
+    asrReady = false; following = false;
+    asrNote = '인식 프로세스가 멈췄습니다. 수동으로 운용하십시오.';
+  }
+  paintFollow();
+});
+
+/** 인식을 준비한다. 프롬프터를 열 때 부른다. */
+async function followUp() {
+  if (!S.follow || mic.on) return;
+  try {
+    asrNote = '준비 중…';
+    paintFollow();
+    await cx.asrStart(2);
+    await mic.start(S.micId);
+    await loadMics();                 // 권한을 받은 뒤에야 장치 이름이 보인다
+    following = true;
+    stage.setFollow(true);
+  } catch (e) {
+    asrNote = '마이크를 열지 못했습니다 — ' + (e && e.message || e);
+    following = false;
+  }
+  paintFollow();
+}
+
+/** 인식을 내린다. 프롬프터를 닫을 때 부른다. */
+async function followDown() {
+  following = false;
+  asrReady = false;
+  heardTail = '';
+  stage.setFollow(false);
+  await mic.stop();
+  await cx.asrStop();
+  paintFollow();
+}
+
+function toggleFollow() {
+  if (!S.follow) { asrNote = '제어판에서 음성 추종을 먼저 켜십시오.'; paintFollow(); return; }
+  if (!mic.on) { followUp(); return; }
+  following = !following;
+  stage.setFollow(following);
+  paintFollow();
+}
+
+function paintFollow(r) {
+  const b = $('#followState'), ob = $('#opFollow');
+  let cls = 'off', text = '꺼짐';
+  if (asrNote && !asrReady) { cls = 'err'; text = '오류'; }
+  else if (!S.follow) { cls = 'off'; text = '사용 안 함'; }
+  else if (!mic.on) { cls = 'off'; text = '대기'; }
+  else if (!following) { cls = 'off'; text = '수동'; }
+  else {
+    const st = (r || cache).followState;
+    cls = st === 'good' ? 'good' : st === 'weak' ? 'weak' : st === 'lost' ? 'lost' : 'wait';
+    text = { good: '추종 중', weak: '추종 중 (약함)', lost: '놓치는 중', wait: '찾는 중' }[cls] || '추종 중';
+  }
+  b.className = 'badge ' + cls;
+  b.textContent = text;
+  ob.textContent = following ? '추종 ON' : '추종';
+  ob.classList.toggle('go', following);
+  $('#followHint').textContent = asrNote;
+
+  // 입력 레벨은 소리가 실제로 들어오는지 눈으로 보려는 것이다
+  $('#micLevel').style.width = Math.min(100, micPeak * 140) + '%';
+  micPeak *= 0.8;
+}
+setInterval(() => { if (mic.on) paintFollow(); }, 150);
+
+async function loadMics() {
+  try {
+    const list = await Mic.devices();
+    $('#micPick').replaceChildren(...list.map(d => new Option(d.label, d.id)));
+    if (S.micId && list.some(d => d.id === S.micId)) $('#micPick').value = S.micId;
+  } catch { /* 권한 전에는 비어 있을 수 있다 */ }
+}
+
 // ══ 설정 반영 ═════════════════════════════════════════════
 function applyAll() {
   stage.apply(S);
@@ -217,7 +324,9 @@ function paintHints() {
   $('#display').disabled = $('#rescan').disabled = S.output !== 'extended';
 }
 
-function setSpeed(v) {
+function setSpeed(v, byHand) {
+  // 운영자가 속도를 직접 만지면 자동 추종을 내린다. 사람 손이 우선이다.
+  if (byHand && following) { following = false; stage.setFollow(false); paintFollow(); }
   S.speed = Math.max(10, Math.min(220, Math.round(v)));
   $('#speed').value = $('#opSpeed').value = S.speed;
   $('#speedV').value = $('#opSpeedV').value = S.speed + ' px/s';
@@ -307,12 +416,14 @@ async function enterPrompter({ fromTop = false, fromCaret = false } = {}) {
   barShown = false;
   $('#opbar').classList.remove('on');
   paintButtons();
+  followUp();                 // 음성 추종을 쓰기로 했다면 여기서 올라온다
 }
 
 async function exitPrompter() {
   if (!promptOpen) return;
   const row = stage.row;
   stage.stop();
+  followDown();
 
   if (remote) await cx.closeStage();
   else {
@@ -419,6 +530,7 @@ function act(id) {
     case 'pageDown':       if (promptOpen) { stage.page(0.5);  return true; } return false;
     case 'fontSmaller':    S.size = Math.max(24, S.size - 4); $('#size').value = S.size; $('#sizeV').value = S.size; applyAll(); return true;
     case 'fontLarger':     S.size = Math.min(180, S.size + 4); $('#size').value = S.size; $('#sizeV').value = S.size; applyAll(); return true;
+    case 'toggleFollow':   toggleFollow(); return true;
     case 'toggleBar':      if (promptOpen) { toggleBar(); return true; } return false;
     case 'exit':           if (promptOpen) { exitPrompter(); return true; } return false;
   }
@@ -461,6 +573,7 @@ function syncInputs() {
   $('#editorPreview').checked = S.editorPreview;
   $('#keepAll').checked = S.keepAll;
   $('#mirH').checked = S.mirrorH; $('#mirV').checked = S.mirrorV;
+  $('#followOn').checked = S.follow;
   $('#speed').value = $('#opSpeed').value = S.speed;
   $('#speedV').value = $('#opSpeedV').value = S.speed + ' px/s';
 }
@@ -475,10 +588,10 @@ function bindAll() {
   bindRange('side', 'side', v => v + ' %');
   bindRange('cuePos', 'cuePos', v => v + ' %');
 
-  $('#speed').oninput = e => setSpeed(+e.target.value);
-  $('#opSpeed').oninput = e => setSpeed(+e.target.value);
-  $('#opUp').onclick = () => setSpeed(S.speed + 5);
-  $('#opDown').onclick = () => setSpeed(S.speed - 5);
+  $('#speed').oninput = e => setSpeed(+e.target.value, true);
+  $('#opSpeed').oninput = e => setSpeed(+e.target.value, true);
+  $('#opUp').onclick = () => setSpeed(S.speed + 5, true);
+  $('#opDown').onclick = () => setSpeed(S.speed - 5, true);
 
   $$('input[name=align]').forEach(r => r.onchange = () => { S.align = r.value; applyAll(); });
   $$('input[name=out]').forEach(r => r.onchange = () => { S.output = r.value; applyAll(); });
@@ -492,6 +605,20 @@ function bindAll() {
   chk('showCue', 'showCue'); chk('talentTimer', 'talentTimer');
   chk('editorPreview', 'editorPreview'); chk('keepAll', 'keepAll');
   chk('mirH', 'mirrorH'); chk('mirV', 'mirrorV');
+
+  $('#followOn').onchange = e => {
+    S.follow = e.target.checked;
+    asrNote = '';
+    if (!S.follow) followDown(); else if (promptOpen) followUp();
+    applyAll(); paintFollow();
+  };
+  $('#micPick').onchange = async e => {
+    S.micId = e.target.value;
+    if (mic.on) { await mic.stop(); await mic.start(S.micId); }   // 장치를 바꾸면 다시 연다
+    applyAll();
+  };
+  $('#micRescan').onclick = loadMics;
+  $('#opFollow').onclick = () => toggleFollow();
 
   swatches('#swInk', INKS, 'ink');
   swatches('#swBack', BACKS, 'back');
@@ -566,6 +693,8 @@ async function loadDisplays() {
   dirty = false;
   applyAll();
   estimate();
+  loadMics();
+  paintFollow();
 })();
 
 addEventListener('beforeunload', () => { cx.saveScript(text); cx.saveConfig({ settings: S, keys: KEYS }); });

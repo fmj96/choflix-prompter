@@ -16,6 +16,7 @@
     "electron": "^33.0.0",
     "electron-packager": "^17.1.2",
     "pdf-lib": "^1.17.1",
-    "resedit": "^3.0.2"
+    "resedit": "^3.0.2",
+    "sherpa-onnx-node": "^1.13.8"
   }
 }

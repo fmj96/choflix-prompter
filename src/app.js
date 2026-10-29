@@ -285,27 +285,41 @@ function applyAll() {
   cx.saveConfig({ settings: S, keys: KEYS });
 }
 
+let editorScale = 1;     // 편집창이 프롬프터 화면을 줄여 보이는 비율
+
 function paintEditor() {
-  const t = $('#script');
+  const t = $('#script'), p = $('#paper');
   if (!S.editorPreview) {
+    editorScale = 1;
+    t.classList.remove('fit');
     Object.assign(t.style, {
       fontFamily: '', fontSize: '15px', fontWeight: '400', textAlign: 'left',
-      lineHeight: '1.6', color: '', background: '', padding: '14px 18px', wordBreak: 'normal'
+      lineHeight: '1.6', color: '', background: '', padding: '14px 18px', wordBreak: 'normal',
+      width: '', minHeight: '', transform: ''
     });
     return;
   }
-  const scale = Math.max(0.15, Math.min(1, t.clientWidth / Math.max(320, screen.width)));
-  const side = t.clientWidth * S.side / 100;
+  // 줄바꿈이 프롬프터와 같으려면 글자 크기만 줄여서는 안 된다(반올림 차이로 어긋난다).
+  // 출력 모니터 폭 · 실제 글자 크기 · 같은 여백으로 배치하고, 그린 결과만 줄인다.
+  // 폭 기준은 잔여 시간 계산(remeasure)과 같다.
+  const d = targetDisplay();
+  const W = d ? d.width : screen.width;
+  const k = editorScale = p.clientWidth / W;
+  const pad = 14 / k;
+  t.classList.add('fit');
   Object.assign(t.style, {
     fontFamily: S.font,
-    fontSize: Math.max(9, S.size * scale) + 'px',
+    fontSize: S.size + 'px',
     fontWeight: S.weight,
     textAlign: S.align,
     lineHeight: S.lineHeight,
     color: S.ink,
     background: S.back,
-    padding: `14px ${side}px`,
-    wordBreak: S.keepAll ? 'keep-all' : 'normal'
+    width: W + 'px',
+    minHeight: p.clientHeight / k + 'px',
+    padding: `${pad}px ${W * S.side / 100}px`,
+    wordBreak: S.keepAll ? 'keep-all' : 'normal',
+    transform: `scale(${k})`
   });
 }
 
@@ -390,7 +404,7 @@ function caretToStart() {
   const sel = getSelection();
   sel.removeAllRanges();
   sel.addRange(r);
-  el.scrollTop = 0;
+  $('#paper').scrollTop = 0;
 }
 
 /** 지정한 줄이 편집창 중앙보다 살짝 위에 오도록 스크롤한다. */
@@ -406,7 +420,8 @@ function editorToRow(row) {
   sel.removeAllRanges();
   sel.addRange(r);
   el.focus();
-  el.scrollTop = Math.max(0, line.offsetTop - el.clientHeight * 0.42);
+  const p = $('#paper');
+  p.scrollTop = Math.max(0, line.offsetTop * editorScale - p.clientHeight * 0.42);
 }
 
 // ══ 글자색 ════════════════════════════════════════════════
@@ -443,9 +458,10 @@ function applyInk(hex) {
     if (to > from) lines[i] = rtSetColor(lines[i], from, to, hex);
   }
 
-  const keep = el.scrollTop;        // 다시 그리면 맨 위로 튄다
+  const p = $('#paper');
+  const keep = p.scrollTop;         // 다시 그리면 맨 위로 튄다
   setText(lines.join('\n'));        // 편집창을 다시 그린다
-  el.scrollTop = keep;
+  p.scrollTop = keep;
   reselect(a, b);                   // 고른 자리를 그대로 둔다
   $('#notice').textContent = '';
 }
@@ -778,7 +794,14 @@ function bindAll() {
     buildKeyList(); applyAll();
   };
 
-  addEventListener('resize', () => { paintEditor(); if (!remote) local.relayout(); });
+  $('#settingsBtn').onclick = () => {
+    const on = $('.body').classList.toggle('settings');
+    $('#settingsBtn').classList.toggle('on', on);
+  };
+
+  addEventListener('resize', () => { if (!remote) local.relayout(); });
+  // 창 크기 · 설정 열고 닫기로 편집창 폭이 바뀌면 축소 비율을 다시 잡는다
+  new ResizeObserver(() => { if (!promptOpen) paintEditor(); }).observe($('#paper'));
 }
 
 async function loadDisplays() {
@@ -789,6 +812,7 @@ async function loadDisplays() {
     S.displayId = (displays.find(d => !d.primary) ?? displays[0]).id;
   $('#display').value = S.displayId;
   paintHints();
+  paintEditor();                    // 편집창 폭 기준이 출력 모니터다
 }
 
 // ══ 시작 ══════════════════════════════════════════════════

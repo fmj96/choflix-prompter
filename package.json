@@ -3,6 +3,7 @@
   "version": "3.2.2",
   "description": "CHOFLIX PROMPTER — 방송용 프롬프터",
   "author": "CHOFLIX AI Lab",
+  "license": "MIT",
   "main": "src/main.js",
   "private": true,
   "scripts": {

@@ -137,8 +137,25 @@ npm run build:win
 사용설명서 PDF 와 스티커 JPG 는 저장소 바깥 `../문서/` 에 있습니다.
 원본 HTML(`docs-src/`)만 저장소에 두고, `npm run build:docs` 로 언제든 다시 만듭니다.
 
-## 라이선스
+## 공개 · 라이선스
 
-라이선스 파일은 넣지 않았습니다. 공개 저장소로 올리실 계획이면
-사용 조건을 정해 `LICENSE` 파일을 추가하십시오.
-사내용으로만 쓰신다면 Private 저장소로 두고 넘어가셔도 됩니다.
+v3.2.2 부터 **Public 저장소** 입니다 (`fmj96/choflix-prompter`). 라이선스는 [MIT](LICENSE) 입니다.
+
+공개 저장소이므로 다음은 넣지 마십시오.
+
+- 내부망 주소 (NAS IP 등) — 문서에는 '사내 NAS' 로만 적습니다
+- 실제 방송 원고 · 녹음 — `dev/sample.json` 은 이 때문에 `.gitignore` 에 있습니다
+- 인증 정보
+
+## 릴리스 규칙
+
+버전마다 태그와 릴리스를 함께 만듭니다. 배포본 이름은 `ChoflixPrompter-v<버전>-win64.zip` 입니다.
+
+```bash
+npm run build:win
+cd dist && zip -qr -X ../../ChoflixPrompter-v3.2.2-win64.zip ChoflixPrompter-win32-x64 -x '*.DS_Store' && cd ..
+gh release create v3.2.2 ../ChoflixPrompter-v3.2.2-win64.zip \
+  --title "CHOFLIX PROMPTER v3.2.2 — 주행 중 마우스 커서 감추기" --notes-file notes.md     # CHANGELOG 해당 부분을 옮겨 둔 파일
+```
+
+본문은 `CHANGELOG.md` 의 해당 버전 부분을 씁니다. 여러 버전을 한 번에 올릴 때는 묶어서 적습니다.

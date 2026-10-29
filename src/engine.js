@@ -167,6 +167,7 @@ class Engine {
     if (this.running) return;
     if (this.max() - this.offset <= 1) return;
     this.running = true;
+    this.el.stage.classList.add('running');
     this._last = performance.now();
     const step = now => {
       if (!this.running) return;
@@ -198,6 +199,7 @@ class Engine {
   stop() {
     if (!this.running) return;
     this.running = false;
+    this.el.stage.classList.remove('running');
     cancelAnimationFrame(this._raf);
     this._raf = null;
     this._report(true);
@@ -238,7 +240,7 @@ class Engine {
       if (!this._drag.moved) {
         if (Math.abs(dy) < 6) return;
         this._drag.moved = true;
-        st.style.cursor = 'ns-resize';
+        st.classList.add('drag');
       }
       const dir = this.s.mirrorV ? -1 : 1;   // 상하 반전 시 손이 가는 방향과 맞춘다
       this._handsOn();
@@ -249,7 +251,7 @@ class Engine {
       if (!this._drag) return;
       const clicked = !this._drag.moved;
       this._drag = null;
-      st.style.cursor = 'pointer';
+      st.classList.remove('drag');
       if (clicked) this.toggle();          // 화면 왼쪽 클릭은 기본 동작이다
     });
 

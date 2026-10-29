@@ -10,6 +10,10 @@ html,body{height:100%;overflow:hidden;background:var(--console);color:var(--ink)
 
 /* ══ 무대 ══════════════════════════════════════════════ */
 .stage{position:absolute;inset:0;overflow:hidden;background:#000;cursor:pointer}
+/* 주행 중에는 커서를 감춘다 — 출연자 화면에 화살표가 떠 있으면 거슬린다.
+   멈추면 다시 보인다. 끌어서 옮기는 동안에는 위아래 화살표로 보인다 */
+.stage.running{cursor:none}
+.stage.drag{cursor:ns-resize}
 .mirror{position:absolute;inset:0}
 .lines{position:absolute;top:0;left:0;right:0;color:#fff;font-weight:700;
   word-break:keep-all;overflow-wrap:break-word;white-space:pre-wrap;

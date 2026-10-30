@@ -14,7 +14,8 @@
   <div class="card top">
     <div class="brand">
       <i class="lamp" id="lamp"></i>
-      <div><h1>CHOFLIX PROMPTER</h1><small>CHOFLIX AI LAB · v3.2.2</small></div>
+      <div><h1>CHOFLIX PROMPTER</h1><small>CHOFLIX AI LAB · v3.3.0</small></div>
+      <button class="sm upd" id="updBadge" hidden title="눌러서 업데이트 설정을 엽니다"></button>
     </div>
 
     <div class="clocks">
@@ -155,6 +156,22 @@
         <label class="chk" style="margin-left:22px"><input type="checkbox" id="mirH">좌우 반전</label>
         <label class="chk" style="margin-left:22px"><input type="checkbox" id="mirV">상하 반전</label>
         <div class="hint" id="mirHint"></div>
+      </div>
+
+      <div class="card" id="updCard">
+        <h2>업데이트</h2>
+        <div class="row"><span>현재 버전</span><b id="updCur" class="ver">—</b></div>
+        <div class="hint">인터넷이 되면 GitHub 에서 받아 설치합니다.
+          인터넷이 없는 PC 는 USB · NAS 에 둔 설치 파일(<code>ChoflixPrompter-Setup-버전.exe</code>)을 고르십시오.</div>
+        <div style="display:flex;gap:6px">
+          <button class="sm" id="updCheck" style="flex:1">인터넷으로 확인</button>
+          <button class="sm" id="updPick" style="flex:1">설치 파일 고르기</button>
+        </div>
+        <div class="hint" id="updMsg"></div>
+        <i class="level" id="updBar" hidden><u id="updFill"></u></i>
+        <button class="wide sm" id="updGet" hidden>받기</button>
+        <button class="wide sm go" id="updInstall" hidden>지금 설치하고 다시 시작</button>
+        <div class="hint">설치하면 프로그램이 닫혔다가 다시 열립니다. 설정과 원고는 그대로 남습니다.</div>
       </div>
 
     </div>

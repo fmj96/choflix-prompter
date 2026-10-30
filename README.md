@@ -18,12 +18,15 @@
 ## 받아서 쓰기
 
 [Releases](https://github.com/fmj96/choflix-prompter/releases/latest) 에서
-`ChoflixPrompter-v…-win64.zip` 을 받아 압축을 풀고 `ChoflixPrompter.exe` 를 실행하십시오.
+`ChoflixPrompter-Setup-<버전>.exe` 를 받아 실행하십시오.
 
-- 설치 과정이 없고 .NET 런타임 같은 사전 조건도 없습니다
-- 인터넷이 필요 없습니다 — 음성 추종 모델까지 배포본에 들어 있습니다
+- 관리자 권한이 필요 없습니다 — 사용자 폴더에 설치됩니다
+- 인터넷이 필요 없습니다 — 음성 추종 모델까지 설치 파일에 들어 있습니다
 - 첫 실행에서 SmartScreen 이 뜨면 `추가 정보` → `실행` 을 누르십시오 (서명되지 않은 실행 파일)
-- 새 버전은 폴더째 덮어쓰면 됩니다. 설정과 원고는 `%APPDATA%` 에 따로 있어 유지됩니다
+
+**업데이트** — 설정 패널 맨 아래 `업데이트` 칸에서 합니다.
+인터넷이 되면 GitHub 에서 받아 설치하고, 인터넷이 없는 PC 는 USB · NAS 에 둔 설치 파일을 고르면 됩니다.
+설정과 원고는 그대로 남습니다.
 
 ---
 
@@ -74,6 +77,11 @@ WPF 는 글자를 픽셀 격자에 맞춰 그리기 때문에 1픽셀과 2픽셀
 - 마우스: 클릭(시작/정지) · 드래그(이동) · 휠(주행 중 속도 / 정지 중 이동)
 - 편집 중에도 잔여 · 전체 시간이 표시됩니다 — 커서가 놓인 줄부터 끝까지가 잔여입니다
 
+**설치 · 업데이트** (v3.3)
+- 설치 마법사 · 시작 메뉴 · 제거 지원, 관리자 권한 불필요
+- 프로그램 안에서 업데이트 — 인터넷(GitHub) 또는 USB · NAS 의 설치 파일
+- 확인만 저절로, 받기 · 설치는 운영자가 누를 때만 — 방송 중 갑자기 닫히지 않습니다
+
 **음성 추종** (v3.1)
 - 강의자가 읽는 자리를 음성으로 찾아 주행 속도를 저절로 맞춥니다
 - 휠·드래그·속도 조작 등 **무엇이든 손을 대면 즉시 수동**으로 돌아옵니다 (`F8` 로 재개)
@@ -104,7 +112,8 @@ python3 -m http.server 5178
 ## 배포본 만들기
 
 ```bash
-npm run build:win     # dist/ChoflixPrompter-win32-x64/
+npm run build:win     # dist/ChoflixPrompter-win32-x64/  (폴더)
+npm run build:setup   # dist/ChoflixPrompter-Setup-<버전>.exe  (설치 파일, makensis 필요)
 ```
 
 **Mac 에서 Windows 배포본을 만들 수 있습니다.** 만들어진 폴더를 통째로 압축해
@@ -154,6 +163,9 @@ src/
   mic.js        마이크 → 0.2초 조각
   mic-worklet.js  오디오 스레드에서 조각 모으기
   asr-worker.js   음성 인식 전담 프로세스
+  update.js     업데이트 — GitHub 확인 · 받기 · 설치 파일 실행
+installer/
+  setup.nsi     설치 파일 (NSIS)
 dev/
   preview.html  브라우저로 편집 콘솔만 열어 보는 껍데기 (배포본에 미포함)
 ```

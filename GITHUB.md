@@ -149,13 +149,18 @@ v3.2.2 부터 **Public 저장소** 입니다 (`fmj96/choflix-prompter`). 라이�
 
 ## 릴리스 규칙
 
-버전마다 태그와 릴리스를 함께 만듭니다. 배포본 이름은 `ChoflixPrompter-v<버전>-win64.zip` 입니다.
+버전마다 태그와 릴리스를 함께 만들고, **설치 파일을 이름 그대로** 올립니다.
+프로그램의 업데이트 기능이 최신 릴리스에서 `ChoflixPrompter-Setup-<버전>.exe` 를 찾습니다.
+이름이 다르거나 빠지면 사용자 PC 에서 '새 버전'이 뜨지 않습니다.
 
 ```bash
-npm run build:win
-cd dist && zip -qr -X ../../ChoflixPrompter-v3.2.2-win64.zip ChoflixPrompter-win32-x64 -x '*.DS_Store' && cd ..
-gh release create v3.2.2 ../ChoflixPrompter-v3.2.2-win64.zip \
-  --title "CHOFLIX PROMPTER v3.2.2 — 주행 중 마우스 커서 감추기" --notes-file notes.md     # CHANGELOG 해당 부분을 옮겨 둔 파일
+npm run build:setup
+gh release create v3.3.0 dist/ChoflixPrompter-Setup-3.3.0.exe \
+  --title "CHOFLIX PROMPTER v3.3.0 — 설치 파일 · 업데이트" --notes-file notes.md     # CHANGELOG 해당 부분을 옮겨 둔 파일
 ```
+
+- 태그는 `v` 를 붙입니다 (`v3.3.0`). 업데이트 기능이 앞의 `v` 를 떼고 버전을 비교합니다
+- 시험용 릴리스는 `--prerelease` 로 올리십시오. `releases/latest` 에 잡히지 않아 사용자에게 뜨지 않습니다
+- GitHub 이 붙여 주는 sha256 으로 받은 파일을 확인하므로, 올린 뒤 파일을 바꿔치지 마십시오
 
 본문은 `CHANGELOG.md` 의 해당 버전 부분을 씁니다. 여러 버전을 한 번에 올릴 때는 묶어서 적습니다.

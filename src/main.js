@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, screen, dialog, utilityProcess } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { createUpdater } = require('./update');
 
 // ── 저장 위치 ──────────────────────────────────────────────
 const dir = () => app.getPath('userData');
@@ -206,6 +207,15 @@ ipcMain.handle('script:export', async (_e, text) => {
   if (r.canceled || !r.filePath) return false;
   try { fs.writeFileSync(r.filePath, text ?? '', 'utf8'); return true; } catch { return false; }
 });
+
+// ── 업데이트 ───────────────────────────────────────────────
+const updater = createUpdater({ win: () => consoleWin, configDir: dir });
+ipcMain.handle('update:version', () => app.getVersion());
+ipcMain.handle('update:check', () => updater.check());
+ipcMain.handle('update:download', () => updater.download());
+ipcMain.handle('update:cancel', () => { updater.cancel(); return true; });
+ipcMain.handle('update:pick', () => updater.pickFile());
+ipcMain.handle('update:install', () => updater.install());
 
 // ── 수명 ───────────────────────────────────────────────────
 app.whenReady().then(createConsole);

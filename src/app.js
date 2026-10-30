@@ -804,6 +804,91 @@ function bindAll() {
   new ResizeObserver(() => { if (!promptOpen) paintEditor(); }).observe($('#paper'));
 }
 
+// ══ 업데이트 ══════════════════════════════════════════════
+// 시작할 때 새 버전이 있는지만 조용히 본다. 받기 · 설치는 운영자가 누를 때만 한다.
+// 인터넷이 없는 프롬프터 PC 에서는 확인이 실패하고 아무것도 나타나지 않는다.
+let updBusy = false;
+const updSay = t => { $('#updMsg').textContent = t; };
+const mb = n => (n / 1048576).toFixed(0) + 'MB';
+
+function openSettings() {
+  $('.body').classList.add('settings');
+  $('#settingsBtn').classList.add('on');
+}
+
+async function updCheck(quiet) {
+  if (updBusy) return;
+  if (!quiet) updSay('확인하는 중...');
+  const r = await cx.updCheck();
+  if (!r.ok) { if (!quiet) updSay(r.error + ' — 설치 파일 고르기를 쓰십시오.'); return; }
+  if (!r.available) { if (!quiet) updSay(`최신 버전입니다 (v${r.current}).`); return; }
+  $('#updBadge').textContent = `새 버전 v${r.latest}`;
+  $('#updBadge').hidden = false;
+  updSay(`새 버전 v${r.latest} 이 있습니다 (${mb(r.size)}).`);
+  $('#updGet').textContent = '받기';
+  $('#updGet').hidden = false;
+}
+
+async function updGet() {
+  if (updBusy) { cx.updCancel(); return; }        // 받는 중에 다시 누르면 취소
+  updBusy = true;
+  $('#updGet').textContent = '받기 취소';
+  $('#updBar').hidden = false;
+  $('#updFill').style.width = '0';
+  updSay('받는 중...');
+  const r = await cx.updDownload();
+  updBusy = false;
+  $('#updBar').hidden = true;
+  if (!r.ok) { updSay(r.error); $('#updGet').textContent = '다시 받기'; return; }
+  $('#updGet').hidden = true;
+  updReady(r.version, r.verified ? ' (파일 확인 완료)' : '');
+}
+
+function updProgress(m) {
+  if (m.t !== 'progress') return;
+  $('#updFill').style.width = m.total ? (m.got / m.total * 100).toFixed(1) + '%' : '0';
+  updSay(`받는 중... ${mb(m.got)}${m.total ? ' / ' + mb(m.total) : ''}`);
+}
+
+async function updPick() {
+  if (updBusy) return;
+  const r = await cx.updPick();
+  if (r.canceled) return;
+  if (!r.ok) { updSay(r.error); return; }
+  if (!r.newer && !confirm(`고른 파일은 v${r.version} 입니다. 지금 버전(v${r.current})과 같거나 이전입니다.\n그래도 설치하시겠습니까?`)) return;
+  updReady(r.version, '');
+}
+
+function updReady(v, note) {
+  updSay(`v${v} 설치 준비가 되었습니다${note}.`);
+  $('#updInstall').hidden = false;
+}
+
+async function updInstall() {
+  if (promptOpen) { updSay('프롬프터를 닫은 뒤 설치하십시오.'); return; }
+  if (!confirm('프로그램을 닫고 설치합니다. 설치가 끝나면 다시 열립니다.\n계속하시겠습니까?')) return;
+  dirty = false;                                  // 닫히기 전에 원고 · 설정을 확실히 남긴다
+  await cx.saveScript(fileText());
+  await cx.saveConfig({ settings: S, keys: KEYS });
+  const r = await cx.updInstall();
+  if (!r.ok) updSay(r.error);
+}
+
+function bindUpdate() {
+  cx.appVersion().then(v => { $('#updCur').textContent = 'v' + v; });
+  cx.onUpdate(updProgress);
+  $('#updCheck').onclick = () => updCheck(false);
+  $('#updPick').onclick = updPick;
+  $('#updGet').onclick = updGet;
+  $('#updInstall').onclick = updInstall;
+  $('#updBadge').onclick = () => {
+    openSettings();
+    // 방금 열린 패널은 다음 프레임에야 자리를 잡는다
+    requestAnimationFrame(() => { const p = $('#panel'); p.scrollTop = p.scrollHeight; });
+  };
+  setTimeout(() => updCheck(true), 4000);         // 시작 화면이 다 뜬 뒤에
+}
+
 async function loadDisplays() {
   displays = await cx.displays();
   $('#display').replaceChildren(...displays.map(d =>
@@ -823,6 +908,7 @@ async function loadDisplays() {
   if (saved?.keys) for (const id in saved.keys) if (id in KEYS) KEYS[id] = saved.keys[id];
 
   bindAll();
+  bindUpdate();
   syncInputs();
   buildKeyList();
   buildInkBar();

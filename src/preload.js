@@ -27,5 +27,14 @@ contextBridge.exposeInMainWorld('cx', {
   asrStop:     ()          => ipcRenderer.invoke('asr:stop'),
   asrPcm:      (s)         => ipcRenderer.send('asr:pcm', s),
   asrReset:    ()          => ipcRenderer.send('asr:reset'),
-  onAsr:       (fn)        => ipcRenderer.on('asr:msg', (_e, m) => fn(m))
+  onAsr:       (fn)        => ipcRenderer.on('asr:msg', (_e, m) => fn(m)),
+
+  // 업데이트
+  appVersion:  ()          => ipcRenderer.invoke('update:version'),
+  updCheck:    ()          => ipcRenderer.invoke('update:check'),
+  updDownload: ()          => ipcRenderer.invoke('update:download'),
+  updCancel:   ()          => ipcRenderer.invoke('update:cancel'),
+  updPick:     ()          => ipcRenderer.invoke('update:pick'),
+  updInstall:  ()          => ipcRenderer.invoke('update:install'),
+  onUpdate:    (fn)        => ipcRenderer.on('update:msg', (_e, m) => fn(m))
 });

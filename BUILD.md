@@ -114,7 +114,41 @@ npm run fetch:model
 > Windows 가 아이콘을 캐시해 둔 것입니다. 파일 이름이 같으면 갱신되지 않을 때가 있습니다.
 > 폴더를 다른 이름으로 풀거나, 탐색기를 다시 시작하면 반영됩니다.
 
+## 3-1. 설치 파일 만들기 — 배포는 이쪽
+
+```bash
+brew install makensis     # 처음 한 번
+npm run build:setup       # dist/ChoflixPrompter-Setup-<버전>.exe
+```
+
+배포본 폴더를 만든 뒤 NSIS 로 감쌉니다. Mac 용 makensis 가 그대로 돌아 **wine 이 필요 없습니다.**
+압축에 3~4분 걸립니다. 설치 스크립트 원본은 `installer/setup.nsi` 입니다.
+
+> **결과물 이름을 바꾸지 마십시오.** 프로그램의 업데이트 기능이 `ChoflixPrompter-Setup-버전.exe`
+> 라는 이름으로 설치 파일을 알아보고 버전을 읽습니다. GitHub 릴리스에도 이 이름 그대로 올립니다.
+
+> **makensis 가 'Bad text encoding' 을 내면** 로캘 문제입니다. 스크립트가 `LC_ALL=en_US.UTF-8` 로
+> 돌리므로 `npm run build:setup` 으로 실행하면 생기지 않습니다. 손으로 돌릴 때만 주의하십시오.
+
+설치 파일이 하는 일
+
+| | |
+|---|---|
+| 설치 위치 | `%LOCALAPPDATA%\Programs\CHOFLIX PROMPTER` (관리자 권한 불필요) |
+| 바로가기 | 시작 메뉴 · 바탕화면 (업데이트 때는 바탕화면 바로가기를 되살리지 않음) |
+| 제거 | `설정 → 앱` 또는 설치 폴더의 `Uninstall.exe` — 설정 · 원고는 남김 |
+| `/S` | 창 없이 설치 |
+| `/RUN` | 설치가 끝나면 프로그램 실행 (업데이트가 씀) |
+
 ## 4. 프롬프터 PC 로 옮기기
+
+**설치 파일**(`ChoflixPrompter-Setup-<버전>.exe`)을 USB 나 NAS 로 옮깁니다.
+
+- 처음: 설치 파일을 실행
+- 이후: 프로그램의 `설정 → 업데이트 → 설치 파일 고르기` 로 고르면 설치하고 다시 열립니다
+
+아래는 설치 없이 폴더째 쓰던 예전 방식입니다.
+
 
 `dist/ChoflixPrompter-win32-x64/` 폴더를 통째로 압축해 USB 나 NAS 로 옮기고,
 프롬프터 PC 에서 풀어 `ChoflixPrompter.exe` 를 실행하십시오.

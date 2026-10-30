@@ -18,8 +18,25 @@ window.cx = {
   asrStop:  async () => true,
   asrPcm:   () => {},
   asrReset: () => {},
-  onAsr:    fn => { _asr = fn; }
+  onAsr:    fn => { _asr = fn; },
+
+  // 업데이트 — 새 버전이 있는 것으로 보고, 받기는 2초 동안 진행만 흉내 낸다
+  appVersion: async () => '3.3.0',
+  updCheck: async () => ({ ok: true, current: '3.3.0', latest: '3.3.1', available: true, size: 262144000 }),
+  updDownload: async () => {
+    const total = 262144000;
+    for (let i = 1; i <= 10; i++) {
+      await new Promise(r => setTimeout(r, 200));
+      _upd && _upd({ t: 'progress', got: total * i / 10, total });
+    }
+    return { ok: true, version: '3.3.1', verified: true };
+  },
+  updCancel: async () => true,
+  updPick: async () => ({ ok: true, version: '3.3.0', current: '3.3.0', newer: false }),
+  updInstall: async () => ({ ok: false, error: 'Windows 에서만 설치할 수 있습니다.' }),
+  onUpdate: fn => { _upd = fn; }
 };
+let _upd = null;
 let _asr = null;
 
 /** 미리보기에서 추종을 시험하려면 콘솔에서 이걸 부른다. */

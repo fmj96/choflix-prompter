@@ -75,8 +75,12 @@ src/
   engine.js     주행 엔진 — 두 창이 공유
   app.js        콘솔 동작 · 설정 · 단축키 · 저장
   style.css     부조 콘솔 테마
+  update.js     업데이트 — GitHub 확인 · 받기 · 설치 파일 실행
+installer/
+  setup.nsi     설치 파일 (NSIS)
 scripts/
   pack-win.mjs  Windows 배포본 포장 (wine 불필요)
+  pack-setup.mjs  설치 파일 포장 — makensis (wine 불필요)
 dev/
   preview.html  브라우저로 편집 콘솔만 열어 보는 껍데기 (배포본에 미포함)
   cx-stub.js    Electron 통로(cx) 흉내
@@ -150,6 +154,19 @@ docs-src/
 
 큐 라인(35%)이 아니라 정중앙에 있던 줄로 커서를 옮기고, 편집창에서도 위에서 42% 지점에 놓습니다.
 "화면 가운데 → 편집창 가운데" 규칙이 단순해서 몇 번 쓰면 몸에 익습니다.
+
+### 업데이트는 저절로 받거나 설치하지 않습니다
+
+시작할 때 새 버전 확인만 저절로 하고, 받기 · 설치는 운영자가 누를 때만 합니다.
+방송 PC 에서 250MB 를 몰래 받거나, 방송 중에 프로그램이 닫히면 안 되기 때문입니다.
+프롬프터가 열려 있으면 설치를 거부하고, 설치 직전에 원고 · 설정을 저장합니다.
+
+**프롬프터 PC 는 인터넷이 없습니다.** 그래서 길이 두 개입니다 —
+GitHub 에서 받기, 그리고 USB · NAS 의 설치 파일 고르기. 어느 쪽이든 끝은
+설치 파일을 `/S /RUN` 으로 돌리고 닫는 것입니다.
+
+**설치 파일 이름 `ChoflixPrompter-Setup-<버전>.exe` 가 약속입니다.** 업데이트 기능이
+이 이름으로 릴리스 첨부 파일을 찾고, 고른 파일의 버전을 읽습니다. 바꾸면 업데이트가 끊깁니다.
 
 ### 원고 편집 중 단축키
 
@@ -259,11 +276,19 @@ Windows 배포본을 만드는 데는 필요 없는 파일이므로 `npm install
 
 ```bash
 npm install --ignore-scripts    # 처음 한 번
-npm run build:win               # dist/ChoflixPrompter-win32-x64/
+brew install makensis           # 처음 한 번
+npm run build:setup             # dist/ChoflixPrompter-Setup-<버전>.exe
 ```
 
-폴더째 압축해 프롬프터 PC 로 옮기고 `ChoflixPrompter.exe` 실행.
-설치 과정도 사전 조건도 없습니다. 자세한 내용은 `BUILD.md` 참고.
+설치 파일을 GitHub 릴리스에 올리고(`GITHUB.md` 의 릴리스 규칙), 프롬프터 PC 에는 USB · NAS 로 옮깁니다.
+자세한 내용은 `BUILD.md` 참고.
+
+### 설치 파일 시험은 wine 으로
+
+Mac 에 wine 이 있으면 설치 · 업그레이드 · 제거를 확인할 수 있습니다. **반드시 따로 만든 WINEPREFIX 에서**
+하십시오. 시험이 끝나면 `wineserver -k` 후 그 폴더를 지웁니다.
+wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 바탕화면 바로가기를 만드는
+일반 설치(창 있는 설치)는 시험하지 마십시오. `/S` 는 바탕화면을 건드리지 않습니다.
 
 ---
 

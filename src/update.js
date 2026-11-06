@@ -8,6 +8,9 @@
  * 설치 파일이 끝나면 프로그램을 다시 띄운다(/RUN). 설치 위치는 설치 파일이
  * 레지스트리에서 이전 위치를 읽어 그대로 쓴다.
  *
+ * Mac 은 설치 파일 대신 dmg 다. 서명 · 공증이 없어 조용히 바꿔 끼울 수 없으므로
+ * dmg 를 열어 주고 닫는다. 앱을 응용 프로그램 폴더로 끌어 바꾸는 것은 사람이 한다.
+ *
  * 저절로 받거나 설치하지 않는다. 방송 PC 에서 250MB 를 몰래 받거나
  * 갑자기 닫히면 안 된다. 시작할 때 새 버전이 있는지만 확인해 알리고,
  * 받기 · 설치는 운영자가 누를 때만 한다.
@@ -19,7 +22,11 @@ const path = require('path');
 const fs = require('fs');
 
 const REPO = 'fmj96/choflix-prompter';
-const SETUP_RE = /^ChoflixPrompter-Setup-(\d+\.\d+\.\d+)\.exe$/i;
+const MAC = process.platform === 'darwin';
+// 릴리스 첨부 파일 이름이 곧 약속이다. 바꾸면 업데이트가 끊긴다.
+const SETUP_RE = MAC ? /^ChoflixPrompter-(\d+\.\d+\.\d+)-mac-arm64\.dmg$/i
+                     : /^ChoflixPrompter-Setup-(\d+\.\d+\.\d+)\.exe$/i;
+const fileName = v => MAC ? `ChoflixPrompter-${v}-mac-arm64.dmg` : `ChoflixPrompter-Setup-${v}.exe`;
 
 /** '3.10.0' > '3.9.2' 처럼 숫자로 비교한다. 글자로 비교하면 틀린다. */
 function newer(a, b) {
@@ -75,7 +82,7 @@ function createUpdater({ win, configDir }) {
   /** 받은 설치 파일이 GitHub 이 알려 준 것과 같은지 sha256 으로 확인한다. */
   async function download() {
     if (!latest) return { ok: false, error: '먼저 업데이트를 확인하십시오.' };
-    const file = path.join(app.getPath('temp'), `ChoflixPrompter-Setup-${latest.version}.exe`);
+    const file = path.join(app.getPath(MAC ? 'downloads' : 'temp'), fileName(latest.version));
     abort = new AbortController();
     const out = fs.createWriteStream(file + '.part');
     const hash = crypto.createHash('sha256');
@@ -116,14 +123,14 @@ function createUpdater({ win, configDir }) {
     const r = await dialog.showOpenDialog(win(), {
       title: '업데이트 설치 파일 고르기',
       defaultPath: prefs().dir || app.getPath('downloads'),
-      filters: [{ name: 'CHOFLIX PROMPTER 설치 파일', extensions: ['exe'] }],
+      filters: [{ name: 'CHOFLIX PROMPTER 설치 파일', extensions: [MAC ? 'dmg' : 'exe'] }],
       properties: ['openFile']
     });
     if (r.canceled || !r.filePaths[0]) return { ok: false, canceled: true };
     const file = r.filePaths[0];
     savePrefs({ dir: path.dirname(file) });
     const m = SETUP_RE.exec(path.basename(file));
-    if (!m) return { ok: false, error: `CHOFLIX PROMPTER 설치 파일이 아닙니다.\n(파일 이름: ChoflixPrompter-Setup-버전.exe)` };
+    if (!m) return { ok: false, error: `CHOFLIX PROMPTER 설치 파일이 아닙니다.\n(파일 이름: ${fileName('버전')})` };
     downloaded = file;
     return { ok: true, version: m[1], current: app.getVersion(), newer: newer(m[1], app.getVersion()) };
   }
@@ -131,9 +138,10 @@ function createUpdater({ win, configDir }) {
   /** 설치 파일을 조용히 돌리고 닫는다. 설치가 끝나면 설치 파일이 프로그램을 다시 띄운다. */
   function install() {
     if (!downloaded || !fs.existsSync(downloaded)) return { ok: false, error: '설치 파일이 없습니다.' };
-    if (process.platform !== 'win32') {         // 개발용 Mac 에서는 폴더만 열어 준다
-      shell.showItemInFolder(downloaded);
-      return { ok: false, error: 'Windows 에서만 설치할 수 있습니다.' };
+    if (MAC) {                                  // dmg 를 열어 주고 닫는다 — 바꿔 끼우기는 사람이
+      shell.openPath(downloaded);
+      setTimeout(() => app.quit(), 1500);
+      return { ok: true, mac: true };
     }
     spawn(downloaded, ['/S', '/RUN'], { detached: true, stdio: 'ignore' }).unref();
     setTimeout(() => app.quit(), 300);

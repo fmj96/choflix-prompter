@@ -153,10 +153,13 @@ v3.2.2 부터 **Public 저장소** 입니다 (`fmj96/choflix-prompter`). 라이�
 프로그램의 업데이트 기능이 최신 릴리스에서 `ChoflixPrompter-Setup-<버전>.exe` 를 찾습니다.
 이름이 다르거나 빠지면 사용자 PC 에서 '새 버전'이 뜨지 않습니다.
 
+Mac 판 dmg(`ChoflixPrompter-<버전>-mac-arm64.dmg`)도 같은 릴리스에 함께 올립니다.
+한쪽만 올리면 다른 쪽 사용자에게는 새 버전이 뜨지 않습니다.
+
 ```bash
-npm run build:setup
-gh release create v3.3.0 dist/ChoflixPrompter-Setup-3.3.0.exe \
-  --title "CHOFLIX PROMPTER v3.3.0 — 설치 파일 · 업데이트" --notes-file notes.md     # CHANGELOG 해당 부분을 옮겨 둔 파일
+npm run build:setup && npm run build:mac
+gh release create v3.4.0 dist/ChoflixPrompter-Setup-3.4.0.exe dist/ChoflixPrompter-3.4.0-mac-arm64.dmg \
+  --title "CHOFLIX PROMPTER v3.4.0 — Mac 판" --notes-file notes.md     # CHANGELOG 해당 부분을 옮겨 둔 파일
 ```
 
 - 태그는 `v` 를 붙입니다 (`v3.3.0`). 업데이트 기능이 앞의 `v` 를 떼고 버전을 비교합니다

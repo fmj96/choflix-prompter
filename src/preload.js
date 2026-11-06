@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld('cx', {
   onAsr:       (fn)        => ipcRenderer.on('asr:msg', (_e, m) => fn(m)),
 
   // 업데이트
+  platform:    process.platform,
   appVersion:  ()          => ipcRenderer.invoke('update:version'),
   updCheck:    ()          => ipcRenderer.invoke('update:check'),
   updDownload: ()          => ipcRenderer.invoke('update:download'),

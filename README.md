@@ -9,7 +9,7 @@
 카메라 앞 하프미러 리그를 쓰는 스튜디오 환경을 위한 프롬프터입니다.<br>
 원고 작성부터 주행 제어, 엔지 대응까지 한 프로그램에서 처리합니다.
 
-`Electron` · `Windows 10 / 11` · `MIT`
+`Electron` · `Windows 10 / 11` · `macOS (Apple Silicon)` · `MIT`
 
 **[⬇ 최신 배포본 받기 (Releases)](https://github.com/fmj96/choflix-prompter/releases/latest)**
 
@@ -23,6 +23,10 @@
 - 관리자 권한이 필요 없습니다 — 사용자 폴더에 설치됩니다
 - 인터넷이 필요 없습니다 — 음성 추종 모델까지 설치 파일에 들어 있습니다
 - 첫 실행에서 SmartScreen 이 뜨면 `추가 정보` → `실행` 을 누르십시오 (서명되지 않은 실행 파일)
+
+**Mac (Apple Silicon)** — `ChoflixPrompter-<버전>-mac-arm64.dmg` 를 열어 앱을 `Applications` 로 끌어 놓으십시오.
+처음 열 때 macOS 가 막으면 `시스템 설정 → 개인정보 보호 및 보안` 맨 아래 `그래도 열기` 를 누르십시오
+(공증하지 않은 앱이라 그렇습니다).
 
 **업데이트** — 설정 패널 맨 아래 `업데이트` 칸에서 합니다.
 인터넷이 되면 GitHub 에서 받아 설치하고, 인터넷이 없는 PC 는 USB · NAS 에 둔 설치 파일을 고르면 됩니다.
@@ -114,6 +118,7 @@ python3 -m http.server 5178
 ```bash
 npm run build:win     # dist/ChoflixPrompter-win32-x64/  (폴더)
 npm run build:setup   # dist/ChoflixPrompter-Setup-<버전>.exe  (설치 파일, makensis 필요)
+npm run build:mac     # dist/ChoflixPrompter-<버전>-mac-arm64.dmg  (Apple Silicon)
 ```
 
 **Mac 에서 Windows 배포본을 만들 수 있습니다.** 만들어진 폴더를 통째로 압축해

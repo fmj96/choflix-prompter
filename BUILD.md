@@ -140,6 +140,35 @@ npm run build:setup       # dist/ChoflixPrompter-Setup-<버전>.exe
 | `/S` | 창 없이 설치 |
 | `/RUN` | 설치가 끝나면 프로그램 실행 (업데이트가 씀) |
 
+## 3-2. Mac(Apple Silicon) 판 만들기
+
+```bash
+npm run build:mac         # dist/ChoflixPrompter-<버전>-mac-arm64.dmg
+```
+
+Electron 공식 darwin-arm64 배포본에 앱을 넣고, 이름 · 아이콘 · 버전 · 마이크 사용 문구를 고친 뒤
+ad-hoc 서명을 하고 dmg 로 쌉니다. 30초쯤 걸립니다. 원본은 `scripts/pack-mac.mjs` 입니다.
+
+> **조립은 로컬 디스크에서 합니다.** 이 저장소가 있는 `/Volumes/Dev` 는 NAS(SMB)라
+> `.app` 안의 심볼릭 링크와 서명 정보를 제대로 담지 못합니다. 스크립트가 임시 폴더에서 조립하고
+> 다 만든 dmg 만 `dist/` 로 옮깁니다. 손으로 .app 을 이 폴더에 풀지 마십시오.
+
+> **dmg 이름을 바꾸지 마십시오.** Windows 의 설치 파일 이름과 같은 이유로, 업데이트 기능이
+> `ChoflixPrompter-버전-mac-arm64.dmg` 라는 이름으로 찾습니다.
+
+음성 추종에는 `node_modules/sherpa-onnx-darwin-arm64` 가 필요합니다. Apple Silicon Mac 에서
+`npm install` 을 했다면 이미 있습니다.
+
+### 처음 열 때
+
+공증하지 않은 앱이라 Gatekeeper 가 막습니다. 받은 사람에게 이렇게 안내하십시오.
+
+1. dmg 를 열고 `CHOFLIX PROMPTER` 를 `Applications` 로 끌어 놓기
+2. 응용 프로그램에서 실행 → "열 수 없음" 창이 뜨면 닫기
+3. `시스템 설정 → 개인정보 보호 및 보안` 맨 아래 `그래도 열기`
+
+한 번 열면 다음부터는 묻지 않습니다. 업데이트로 새 버전을 끌어 바꾸면 다시 한 번 묻습니다.
+
 ## 4. 프롬프터 PC 로 옮기기
 
 **설치 파일**(`ChoflixPrompter-Setup-<버전>.exe`)을 USB 나 NAS 로 옮깁니다.

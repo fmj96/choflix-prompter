@@ -808,6 +808,8 @@ function bindAll() {
 // 시작할 때 새 버전이 있는지만 조용히 본다. 받기 · 설치는 운영자가 누를 때만 한다.
 // 인터넷이 없는 프롬프터 PC 에서는 확인이 실패하고 아무것도 나타나지 않는다.
 let updBusy = false;
+// Mac 은 서명 · 공증이 없어 조용히 바꿔 끼울 수 없다. dmg 를 열어 주고, 끌어 바꾸기는 사람이 한다.
+const updMac = cx.platform === 'darwin';
 const updSay = t => { $('#updMsg').textContent = t; };
 const mb = n => (n / 1048576).toFixed(0) + 'MB';
 
@@ -866,7 +868,9 @@ function updReady(v, note) {
 
 async function updInstall() {
   if (promptOpen) { updSay('프롬프터를 닫은 뒤 설치하십시오.'); return; }
-  if (!confirm('프로그램을 닫고 설치합니다. 설치가 끝나면 다시 열립니다.\n계속하시겠습니까?')) return;
+  if (!confirm(updMac
+      ? '프로그램을 닫고 dmg 를 엽니다.\n열린 창에서 CHOFLIX PROMPTER 를 응용 프로그램 폴더로 끌어 바꾼 뒤 다시 실행하십시오.\n계속하시겠습니까?'
+      : '프로그램을 닫고 설치합니다. 설치가 끝나면 다시 열립니다.\n계속하시겠습니까?')) return;
   dirty = false;                                  // 닫히기 전에 원고 · 설정을 확실히 남긴다
   await cx.saveScript(fileText());
   await cx.saveConfig({ settings: S, keys: KEYS });
@@ -875,6 +879,11 @@ async function updInstall() {
 }
 
 function bindUpdate() {
+  if (updMac) {
+    $('#updName').textContent = 'ChoflixPrompter-버전-mac-arm64.dmg';
+    $('#updInstall').textContent = '닫고 dmg 열기';
+    $('#updAfter').textContent = 'dmg 의 앱을 응용 프로그램 폴더로 끌어 바꾸면 됩니다. 설정과 원고는 그대로 남습니다.';
+  }
   cx.appVersion().then(v => { $('#updCur').textContent = 'v' + v; });
   cx.onUpdate(updProgress);
   $('#updCheck').onclick = () => updCheck(false);

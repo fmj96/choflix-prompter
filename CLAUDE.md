@@ -14,7 +14,7 @@
 |---|---|
 | 현재 버전 | **v3.0 (Electron)** — 이 저장소 |
 | 이전 버전 | v2.7 (C# WPF) — 별도 보관, 참고용 |
-| 대상 OS | Windows 10 / 11 |
+| 대상 OS | Windows 10 / 11 (주), macOS Apple Silicon (v3.4~) |
 
 ## 개발 환경
 
@@ -81,6 +81,7 @@ installer/
 scripts/
   pack-win.mjs  Windows 배포본 포장 (wine 불필요)
   pack-setup.mjs  설치 파일 포장 — makensis (wine 불필요)
+  pack-mac.mjs  Mac(arm64) dmg — 로컬 임시 폴더에서 조립 · ad-hoc 서명
 dev/
   preview.html  브라우저로 편집 콘솔만 열어 보는 껍데기 (배포본에 미포함)
   cx-stub.js    Electron 통로(cx) 흉내
@@ -167,6 +168,10 @@ GitHub 에서 받기, 그리고 USB · NAS 의 설치 파일 고르기. 어느 �
 
 **설치 파일 이름 `ChoflixPrompter-Setup-<버전>.exe` 가 약속입니다.** 업데이트 기능이
 이 이름으로 릴리스 첨부 파일을 찾고, 고른 파일의 버전을 읽습니다. 바꾸면 업데이트가 끊깁니다.
+Mac 은 `ChoflixPrompter-<버전>-mac-arm64.dmg` 입니다.
+
+Mac 은 서명 · 공증이 없어 조용히 바꿔 끼울 수 없습니다. 그래서 dmg 를 열어 주고 닫기까지만 하고,
+앱을 응용 프로그램 폴더로 끌어 바꾸는 것은 사람이 합니다.
 
 ### 원고 편집 중 단축키
 
@@ -257,6 +262,16 @@ extractContents 로도 풀리지 않습니다. 그래서 글자 위치로 직접
 `npm install` 이 받는 Mac 용 Electron 실행 파일이 XProtect 에 걸릴 수 있습니다.
 Windows 배포본을 만드는 데는 필요 없는 파일이므로 `npm install --ignore-scripts` 로
 아예 받지 않는 편이 깔끔합니다. 대신 `npm start` 는 동작하지 않습니다.
+
+### Mac 판은 NAS 위에서 조립하면 깨집니다
+
+이 저장소(`/Volumes/Dev`)는 NAS(SMB) 공유입니다. Electron 의 `.app` 은 Frameworks 안의
+심볼릭 링크와 확장 속성(서명)에 기대는데, SMB 는 이것을 온전히 담는다고 보장하지 않습니다.
+(실제로 깨지는지 시험하지는 않았습니다 — 처음부터 피했습니다.)
+`pack-mac.mjs` 는 그래서 `os.tmpdir()` 에서 조립 · 서명 · dmg 까지 끝내고 dmg 만 `dist/` 로 옮깁니다.
+
+Apple Silicon 은 서명 없는 코드를 아예 돌리지 않습니다. 앱 내용을 고친 뒤에는 반드시 다시 서명하고,
+`Resources/app` 안의 `.node` · `.dylib` 는 `--deep` 이 챙기지 않으므로 따로 먼저 서명합니다.
 
 ### 설정 파일이 새 기본값을 덮어씀
 

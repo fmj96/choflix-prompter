@@ -9,9 +9,9 @@
  *
  * 기본 출력 폴더는 저장소 바깥의 ../문서 이다.
  *
- * 사용설명서 PDF 는 저장소의 docs/ 에도 이름을 고정해 넣는다(v3.4~). GitHub 에서 바로
- * 내려받게 하려는 것으로, README 가 이 이름으로 걸어 둔다. manual.html 을 고치면 이걸 다시 돌려
- * 두 벌을 맞추십시오. 스티커 JPG 는 여전히 저장소에 넣지 않는다.
+ * 사용설명서 PDF 와 스티커 JPG 는 저장소의 docs/ 에도 이름을 고정해 넣는다(v3.4~).
+ * GitHub 에서 바로 내려받게 하려는 것으로, README 가 이 이름으로 걸어 둔다.
+ * 원본 HTML 을 고치면 이걸 다시 돌려 두 벌을 맞추십시오.
  */
 import { execFileSync, spawn } from 'child_process';
 import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync, statSync } from 'fs';
@@ -125,8 +125,10 @@ async function sticker() {
   execFileSync('sips', ['-s', 'format', 'jpeg', '-s', 'formatOptions', '95',
                         '-s', 'dpiWidth', '600', '-s', 'dpiHeight', '600',
                         png, '--out', dest], { stdio: 'ignore' });
+  mkdirSync(path.join(root, 'docs'), { recursive: true });
+  writeFileSync(path.join(root, 'docs', 'CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg'), readFileSync(dest));   // README 가 거는 이름
   const size = execFileSync('sips', ['-g', 'pixelWidth', '-g', 'pixelHeight', dest]).toString();
-  say(`스티커 ${size.match(/pixelWidth: (\d+)/)[1]}×${size.match(/pixelHeight: (\d+)/)[1]}px @600dpi → ${path.basename(dest)}`);
+  say(`스티커 ${size.match(/pixelWidth: (\d+)/)[1]}×${size.match(/pixelHeight: (\d+)/)[1]}px @600dpi → ${path.basename(dest)} · docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg`);
 }
 
 console.log(`\n  CHOFLIX PROMPTER — 문서 만들기 (v${VERSION})\n`);

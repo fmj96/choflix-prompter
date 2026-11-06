@@ -18,7 +18,7 @@
 
   .rows{display:flex; flex-direction:column}
   .r{display:flex; align-items:center; justify-content:space-between;
-     padding:0 7px; height:30.5px; gap:8px}
+     padding:0 7px; height:28.5px; gap:8px}   /* 14줄이 7cm 안에 들도록 */
   .r:nth-child(odd){background:var(--zebra)}
   .r .n{font-size:15px; font-weight:700; letter-spacing:-.3px; white-space:nowrap}
   .keys{display:flex; gap:5px; flex:none}
@@ -60,6 +60,8 @@
     <span class="keys"><kbd>PgUp</kbd><kbd>PgDn</kbd></span></div>
   <div class="r"><span class="n">글자 작게 / 크게</span>
     <span class="keys"><kbd>←</kbd><kbd>→</kbd></span></div>
+  <div class="r"><span class="n">음성 추종 켜기 / 끄기</span>
+    <span class="keys"><kbd>F8</kbd></span></div>
   <div class="r"><span class="n">운영자 바</span>
     <span class="keys"><kbd>Tab</kbd></span></div>
   <div class="r"><span class="n">프롬프터 닫기</span>
@@ -79,7 +81,7 @@
     <span class="keys"><kbd class="plain">휠</kbd></span></div>
 </div>
 
-<footer><span>CHOFLIX AI LAB</span><span>v3.0.1</span></footer>
+<footer><span>CHOFLIX AI LAB</span><span>Mac 은 F키를 fn 과 함께</span><span>v3.4.0</span></footer>
 
 </body>
 </html>

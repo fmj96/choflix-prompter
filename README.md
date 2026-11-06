@@ -12,7 +12,8 @@
 `Electron` · `Windows 10 / 11` · `macOS (Apple Silicon)` · `MIT`
 
 **[⬇ 최신 배포본 받기 (Releases)](https://github.com/fmj96/choflix-prompter/releases/latest)** ·
-**[📖 사용설명서 (PDF)](docs/CHOFLIX_PROMPTER_Manual.pdf)**
+**[📖 사용설명서 (PDF)](docs/CHOFLIX_PROMPTER_Manual.pdf)** ·
+**[⌨️ 단축키 스티커 (7×7cm)](docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg)**
 
 </div>
 

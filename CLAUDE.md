@@ -323,12 +323,16 @@ wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 
 ### 문서
 
 - [x] 사용설명서 PDF — v3.4.0 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
-- [ ] 단축키 스티커 JPG(7×7cm, 600dpi) — **아직 v3.0.1 기준** (`F8` 음성 추종이 빠져 있음). `docs-src/sticker.html` 이 원본입니다
+- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.0 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
 - [x] GitHub 업로드 — 공개 저장소 · 릴리스 운영 중 (`GITHUB.md`)
 
 문서는 `npm run build:docs` 로 다시 만듭니다. 결과물은 저장소 바깥 `../문서/` 에 나오고,
-**사용설명서 PDF 만은 `docs/CHOFLIX_PROMPTER_Manual.pdf` 에도 함께 써집니다** (README 가 이 이름으로 겁니다).
-`manual.html` 을 고쳤으면 반드시 다시 돌려 PDF 를 맞추십시오. 기능을 바꿀 때 설명서도 함께 고치십시오 —
+**사용설명서 PDF 와 스티커 JPG 는 `docs/` 에도 함께 써집니다** (README 가 이 이름으로 겁니다).
+원본 HTML 을 고쳤으면 반드시 다시 돌려 맞추십시오. 스티커는 7×7cm 고정이라 줄을 더하면
+`.r` 의 높이를 줄여야 들어갑니다(14줄에서 28.5px).
+
+만들 때마다 PDF 의 생성 시각이 바뀌어 내용이 같아도 git 에 변경으로 잡힙니다.
+설명서를 고치지 않았다면 `git checkout -- docs/CHOFLIX_PROMPTER_Manual.pdf` 로 되돌리십시오. 기능을 바꿀 때 설명서도 함께 고치십시오 —
 v3.0.1 에서 v3.4.0 까지 설명서가 따라오지 못해 한꺼번에 고쳐야 했습니다.
 
 ### 기능 후보

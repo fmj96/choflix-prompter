@@ -154,7 +154,8 @@ v3.2.2 부터 **Public 저장소** 입니다 (`fmj96/choflix-prompter`). 라이�
 이름이 다르거나 빠지면 사용자 PC 에서 '새 버전'이 뜨지 않습니다.
 
 Mac 판 dmg(`ChoflixPrompter-<버전>-mac-arm64.dmg`)도 같은 릴리스에 함께 올립니다.
-사용설명서 PDF 는 저장소 `docs/` 에 있고, 릴리스에도 `CHOFLIX_PROMPTER_Manual_v<버전>.pdf` 로 붙입니다
+사용설명서 PDF 와 단축키 스티커는 저장소 `docs/` 에 있고, 릴리스에도
+`CHOFLIX_PROMPTER_Manual_v<버전>.pdf` · `CHOFLIX_PROMPTER_Shortcuts_7x7cm_v<버전>.jpg` 로 붙입니다
 (첨부 파일 이름은 영문으로 — 한글 이름은 GitHub 이 바꿔 버릴 수 있습니다).
 한쪽만 올리면 다른 쪽 사용자에게는 새 버전이 뜨지 않습니다.
 

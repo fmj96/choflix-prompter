@@ -8,7 +8,10 @@
  *   node docs-src/build-docs.mjs [출력폴더]
  *
  * 기본 출력 폴더는 저장소 바깥의 ../문서 이다.
- * 만들어진 PDF·JPG 는 저장소에 넣지 않는다 (원본 HTML 로 언제든 다시 만든다).
+ *
+ * 사용설명서 PDF 는 저장소의 docs/ 에도 이름을 고정해 넣는다(v3.4~). GitHub 에서 바로
+ * 내려받게 하려는 것으로, README 가 이 이름으로 걸어 둔다. manual.html 을 고치면 이걸 다시 돌려
+ * 두 벌을 맞추십시오. 스티커 JPG 는 여전히 저장소에 넣지 않는다.
  */
 import { execFileSync, spawn } from 'child_process';
 import { mkdirSync, existsSync, rmSync, readFileSync, writeFileSync, statSync } from 'fs';
@@ -103,8 +106,11 @@ async function manual() {
   doc.setSubject(`방송용 프롬프터 사용설명서 v${VERSION}`);
 
   const dest = path.join(out, `CHOFLIX_PROMPTER_사용설명서_v${VERSION}.pdf`);
-  writeFileSync(dest, await doc.save());
-  say(`사용설명서 ${pages.length}쪽 → ${path.basename(dest)}`);
+  const bytes = await doc.save();
+  writeFileSync(dest, bytes);
+  mkdirSync(path.join(root, 'docs'), { recursive: true });
+  writeFileSync(path.join(root, 'docs', 'CHOFLIX_PROMPTER_Manual.pdf'), bytes);   // README 가 거는 이름
+  say(`사용설명서 ${pages.length}쪽 → ${path.basename(dest)} · docs/CHOFLIX_PROMPTER_Manual.pdf`);
 }
 
 async function sticker() {

@@ -100,8 +100,13 @@ docs-src/
 
 | 항목 | 경로 |
 |---|---|
-| 설정 · 단축키 | `%APPDATA%\CHOFLIX PROMPTER\config.json` |
-| 원고 자동 보존 | `%APPDATA%\CHOFLIX PROMPTER\last_script.txt` |
+| 설정 · 단축키 | `%APPDATA%\choflix-prompter\config.json` |
+| 원고 자동 보존 | `%APPDATA%\choflix-prompter\last_script.html` (예전 `last_script.txt` 도 읽음) |
+| Mac | `~/Library/Application Support/choflix-prompter/` |
+
+폴더 이름은 Electron 이 `package.json` 의 `name` 으로 정합니다. v3.4 이전 문서에는
+`%APPDATA%\CHOFLIX PROMPTER` 로 잘못 적혀 있었습니다 — wine 에서 실제 폴더를 보고 바로잡았습니다.
+**`name` 을 바꾸면 기존 사용자의 설정 · 원고를 못 찾게 됩니다.** 바꾸지 마십시오.
 
 ---
 
@@ -317,12 +322,14 @@ wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 
 
 ### 문서
 
-- [x] 사용설명서 PDF — v3.0.1 기준 16쪽. `docs-src/manual.html` 이 원본입니다
-- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.0.1 기준. `docs-src/sticker.html` 이 원본입니다
-- [ ] GitHub 업로드 — `GITHUB.md` 참고
+- [x] 사용설명서 PDF — v3.4.0 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
+- [ ] 단축키 스티커 JPG(7×7cm, 600dpi) — **아직 v3.0.1 기준** (`F8` 음성 추종이 빠져 있음). `docs-src/sticker.html` 이 원본입니다
+- [x] GitHub 업로드 — 공개 저장소 · 릴리스 운영 중 (`GITHUB.md`)
 
-문서는 `npm run build:docs` 로 다시 만듭니다. 결과물은 저장소 바깥 `../문서/` 에 나오며,
-저장소에는 **원본 HTML 만** 넣습니다 (PDF·JPG 는 언제든 다시 만들 수 있으므로).
+문서는 `npm run build:docs` 로 다시 만듭니다. 결과물은 저장소 바깥 `../문서/` 에 나오고,
+**사용설명서 PDF 만은 `docs/CHOFLIX_PROMPTER_Manual.pdf` 에도 함께 써집니다** (README 가 이 이름으로 겁니다).
+`manual.html` 을 고쳤으면 반드시 다시 돌려 PDF 를 맞추십시오. 기능을 바꿀 때 설명서도 함께 고치십시오 —
+v3.0.1 에서 v3.4.0 까지 설명서가 따라오지 못해 한꺼번에 고쳐야 했습니다.
 
 ### 기능 후보
 

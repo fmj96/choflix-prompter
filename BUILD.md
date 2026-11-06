@@ -192,7 +192,7 @@ ad-hoc 서명을 하고 dmg 로 쌉니다. 30초쯤 걸립니다. 원본은 `scr
 ## 5. 갱신
 
 수정 후 다시 `npm run build:win` 하고 폴더를 덮어쓰면 됩니다.
-설정과 원고는 `%APPDATA%\CHOFLIX PROMPTER\` 에 따로 있어 덮어써도 유지됩니다.
+설정과 원고는 `%APPDATA%\choflix-prompter\` 에 따로 있어 덮어써도 유지됩니다.
 
 ---
 

@@ -37,7 +37,7 @@
   .toc{page-break-after:always}
   .toc h2{font-size:18pt; font-weight:800; margin-bottom:6mm}
   .toc ol{list-style:none}
-  .toc li{display:flex; gap:5mm; padding:2.1mm 0; border-bottom:1px solid var(--line)}
+  .toc li{display:flex; gap:5mm; padding:1.5mm 0; border-bottom:1px solid var(--line)}
   .toc .n{width:9mm; font-weight:800; color:var(--accent); font-size:11pt; flex:none}
   .toc .t{font-weight:700; font-size:11pt}
   .toc .d{color:var(--sub); font-size:9pt; margin-top:.5mm}
@@ -105,11 +105,11 @@
   <h1>CHOFLIX<em>PROMPTER</em></h1>
   <div class="tag">방송용 프롬프터 사용설명서</div>
   <p class="desc">
-    카메라 앞 하프미러 리그를 쓰는 스튜디오 환경을 위한 Windows 전용 프롬프터입니다.<br>
+    카메라 앞 하프미러 리그를 쓰는 스튜디오 환경을 위한 프롬프터입니다.<br>
     원고 작성부터 주행 제어, 엔지 대응까지 한 프로그램에서 처리합니다.
   </p>
   <div class="meta">
-    <div><b>Version 3.0.1</b><br>Windows 10 / 11 · 설치 불필요</div>
+    <div><b>Version 3.4.0</b><br>Windows 10 / 11 · macOS (Apple Silicon)</div>
     <div class="r">CHOFLIX AI LAB<br>2026</div>
   </div>
 </section>
@@ -118,22 +118,24 @@
 <section class="toc">
   <h2>목차</h2>
   <ol>
-    <li><span class="n">1</span><span><span class="t">설치와 실행</span><div class="d">옮기기 · 실행 · 배포본 만들기</div></span></li>
-    <li><span class="n">2</span><span><span class="t">화면 구성</span><div class="d">편집 모드 · 프롬프터 모드 · 운영자 바</div></span></li>
-    <li><span class="n">3</span><span><span class="t">원고 작성</span><div class="d">편집창 미리보기 · 어절 줄바꿈 · 자동 보존</div></span></li>
+    <li><span class="n">1</span><span><span class="t">설치와 실행</span><div class="d">Windows 설치 파일 · Mac dmg · 처음 열기</div></span></li>
+    <li><span class="n">2</span><span><span class="t">화면 구성</span><div class="d">편집 모드 · 설정 패널 · 프롬프터 모드 · 운영자 바</div></span></li>
+    <li><span class="n">3</span><span><span class="t">원고 작성</span><div class="d">프롬프터와 같은 줄 배열 · 글자에 색 입히기 · 자동 보존</div></span></li>
     <li><span class="n">4</span><span><span class="t">리그 설치 설정</span><div class="d">출력 배치 · 반전 처리 · 하프미러 프리셋</div></span></li>
     <li><span class="n">5</span><span><span class="t">표시 설정</span><div class="d">글꼴 · 정렬 · 색 · 큐 라인</div></span></li>
     <li><span class="n">6</span><span><span class="t">주행 조작</span><div class="d">시작 방식 · 속도 · 위치 이동</div></span></li>
     <li><span class="n">7</span><span><span class="t">시간 표시</span><div class="d">누적 · 잔여 · 전체 · 엔지 재독 처리</div></span></li>
-    <li><span class="n">8</span><span><span class="t">단축키</span><div class="d">기본값 · 재지정 방법</div></span></li>
-    <li><span class="n">9</span><span><span class="t">실전 운용 절차</span><div class="d">방송 전 점검 · 생방송 중 수정 · 엔지 대응</div></span></li>
-    <li><span class="n">10</span><span><span class="t">문제 해결</span><div class="d">증상별 대처</div></span></li>
-    <li><span class="n">11</span><span><span class="t">파일 위치</span><div class="d">설정 · 원고 보존본</div></span></li>
+    <li><span class="n">8</span><span><span class="t">음성 추종</span><div class="d">읽는 자리에 맞춰 속도를 저절로 · 사람 손이 우선</div></span></li>
+    <li><span class="n">9</span><span><span class="t">단축키</span><div class="d">기본값 · 재지정 방법</div></span></li>
+    <li><span class="n">10</span><span><span class="t">실전 운용 절차</span><div class="d">방송 전 점검 · 생방송 중 수정 · 엔지 대응</div></span></li>
+    <li><span class="n">11</span><span><span class="t">업데이트</span><div class="d">인터넷으로 · USB · NAS 의 설치 파일로</div></span></li>
+    <li><span class="n">12</span><span><span class="t">문제 해결</span><div class="d">증상별 대처</div></span></li>
+    <li><span class="n">13</span><span><span class="t">파일 위치</span><div class="d">설정 · 원고 보존본 · 프로그램</div></span></li>
   </ol>
   <div class="note plain" style="margin-top:6mm">
     <b>v2 에서 올라오신 경우</b>
     <p>v3.0 부터 프로그램의 속이 완전히 바뀌었습니다(C# WPF → Electron). 조작 방법과 화면 구성은
-    거의 그대로지만, <b>설치 방법과 기본 단축키가 달라졌습니다.</b> 1장과 8장을 먼저 보십시오.</p>
+    거의 그대로지만, <b>설치 방법과 기본 단축키가 달라졌습니다.</b> 1장과 9장을 먼저 보십시오.</p>
   </div>
 </section>
 
@@ -141,50 +143,55 @@
 <section class="ch">
   <h2><i>1</i>설치와 실행</h2>
 
-  <h3>필요한 것</h3>
-  <p>Windows 10 또는 11 뿐입니다. <b>.NET 도, 별도 런타임도 필요하지 않습니다.</b>
-  프로그램이 실행에 필요한 모든 것을 폴더 안에 담고 있습니다.</p>
+  <h3>받기</h3>
+  <p>배포본은 GitHub 릴리스에 있습니다 — <code>github.com/fmj96/choflix-prompter/releases</code>.
+  인터넷이 없는 프롬프터 PC 에는 USB 나 사내 NAS 로 옮겨 설치합니다.</p>
+  <table>
+    <thead><tr><th>컴퓨터</th><th>파일</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Windows 10 / 11</td><td><code>ChoflixPrompter-Setup-<i>버전</i>.exe</code></td></tr>
+      <tr><td class="k">Mac (Apple Silicon)</td><td><code>ChoflixPrompter-<i>버전</i>-mac-arm64.dmg</code></td></tr>
+    </tbody>
+  </table>
+  <p>.NET 같은 별도 런타임도, 인터넷도 필요 없습니다. 음성 추종용 인식 모델까지 설치 파일에 들어 있습니다.</p>
 
-  <div class="note">
-    <b>v2 와 달라진 점</b>
-    <p>v2 까지는 .NET 8 런타임을 미리 깔아야 했고 <code>run.bat</code> · <code>publish.bat</code> 으로
-    실행했습니다. v3 은 그 과정이 모두 없어졌습니다.</p>
+  <h3>Windows 에 설치</h3>
+  <ol class="steps">
+    <li><code>ChoflixPrompter-Setup-<i>버전</i>.exe</code> 를 두 번 누릅니다</li>
+    <li>설치 마법사에서 <b>다음 → 설치 → 마침</b></li>
+    <li>시작 메뉴나 바탕화면의 <b>CHOFLIX PROMPTER</b> 로 실행합니다</li>
+  </ol>
+  <p>사용자 폴더(<code>%LOCALAPPDATA%\Programs\CHOFLIX PROMPTER</code>)에 설치되므로
+  <b>관리자 권한이 필요 없습니다.</b> 지울 때는 <b>설정 → 앱</b> 에서 제거합니다.
+  제거해도 설정과 원고는 남습니다(13장).</p>
+  <div class="note plain">
+    <b>"Windows 의 PC 보호" 창이 뜨면</b>
+    <p>서명되지 않은 프로그램이라 처음 한 번 나옵니다. <b>추가 정보 → 실행</b> 을 누르십시오.</p>
   </div>
 
-  <h3>실행</h3>
+  <h3>Mac 에 설치</h3>
   <ol class="steps">
-    <li>받은 압축 파일을 프롬프터 PC 의 원하는 위치에 풉니다 (예: <code>C:\Prompter</code>)</li>
-    <li>폴더 안의 <code>ChoflixPrompter.exe</code> 를 두 번 누릅니다</li>
+    <li>dmg 를 열고 <b>CHOFLIX PROMPTER</b> 를 옆의 <b>Applications</b> 로 끌어 놓습니다</li>
+    <li>응용 프로그램 폴더에서 실행합니다. "열 수 없음" 창이 뜨면 닫습니다</li>
+    <li><b>시스템 설정 → 개인정보 보호 및 보안</b> 맨 아래 <b>그래도 열기</b> 를 누릅니다</li>
   </ol>
-  <p>설치 과정도, 관리자 권한도 필요 없습니다. 창은 최대화된 상태로 열립니다.
-  폴더째 USB 로 옮겨 다른 PC 에서 실행해도 그대로 동작합니다.</p>
-
-  <div class="note warn">
-    <b>폴더 전체를 함께 옮기십시오</b>
-    <p><code>ChoflixPrompter.exe</code> 하나만 꺼내면 실행되지 않습니다. 같은 폴더의
-    <code>resources</code> · <code>locales</code> 와 <code>.dll</code> 파일들이 함께 있어야 합니다.
-    바탕화면에 두고 쓰시려면 <b>바로가기</b>를 만드십시오.</p>
+  <p>한 번 열면 다음부터는 묻지 않습니다. 음성 추종을 처음 켤 때 <b>마이크 허용</b>을 묻습니다.</p>
+  <div class="note plain">
+    <b>Mac 키보드의 기능키</b>
+    <p><kbd>F8</kbd> ~ <kbd>F10</kbd> 은 <kbd>fn</kbd> 과 함께 눌러야 할 수 있습니다.
+    불편하면 9장의 방법으로 다른 키에 지정하십시오.</p>
   </div>
 
   <h3>새 버전으로 바꾸기</h3>
-  <ol class="steps">
-    <li>프롬프터가 실행 중이면 닫습니다</li>
-    <li>기존 폴더를 통째로 지우거나 이름을 바꿔 둡니다</li>
-    <li>새 폴더를 풀어 놓고 실행합니다</li>
-  </ol>
-  <p>설정과 원고 보존본은 프로그램 폴더가 아니라 <code>%APPDATA%</code> 에 따로 있으므로
-  (11장 참고) <b>폴더를 지워도 설정과 원고는 남습니다.</b></p>
+  <p>프로그램 안에서 합니다. 11장을 보십시오. 설정과 원고는 그대로 남습니다.</p>
 
-  <h3>배포본 만들기 — 개발자용</h3>
-  <p>프롬프터 PC 는 인터넷이 없으므로 빌드는 항상 Mac 에서 합니다.</p>
-<pre><span class="c"># 처음 한 번</span>
-npm install --ignore-scripts
+  <div class="note">
+    <b>v3.2 이하(압축 파일)를 쓰던 PC</b>
+    <p>예전에는 압축을 풀어 폴더째 썼습니다. 이번 한 번만 설치 파일을 직접 실행하면 그다음부터는
+    프로그램 안에서 업데이트됩니다. 예전에 풀어 둔 폴더는 지워도 됩니다.</p>
+  </div>
 
-<span class="c"># 배포본 만들기</span>
-npm run build:win
-<span class="c">→ dist/ChoflixPrompter-win32-x64/</span></pre>
-  <p>만들어진 폴더를 압축해 USB 나 사내 NAS 로 옮깁니다.
-  자세한 내용은 저장소의 <code>BUILD.md</code> 를 보십시오.</p>
+  <p style="color:var(--sub)">설치 파일을 직접 만드는 방법은 저장소의 <code>BUILD.md</code> 를 보십시오 (개발자용).</p>
 </section>
 
 <!-- ══ 2 화면 구성 ════════════════════════════════════ -->
@@ -201,7 +208,7 @@ npm run build:win
     <span>전체 <span class="t">00:07:12</span></span>
     <span class="sp"></span>
     <span>속도 ──── 55 px/s</span>
-    <span class="b go">프롬프터 (처음부터)</span><span class="b">프롬프터 (중간부터)</span>
+    <span class="b go">프롬프터 (처음부터)</span><span class="b">프롬프터 (중간부터)</span><span class="b">설정</span>
   </div>
 
   <table>
@@ -212,23 +219,29 @@ npm run build:win
       <tr><td class="k">속도</td><td>초당 이동 픽셀 수. 주행 중에도 조절할 수 있습니다</td></tr>
       <tr><td class="k">프롬프터 (처음부터)</td><td>원고 맨 앞으로 되감고 시작. 누적 시간도 초기화</td></tr>
       <tr><td class="k">프롬프터 (중간부터)</td><td>편집창 커서가 놓인 줄부터 시작</td></tr>
+      <tr><td class="k">설정</td><td>오른쪽 설정 패널을 열고 닫습니다</td></tr>
+      <tr><td class="k">새 버전 v…</td><td>새 버전이 있을 때만 로고 옆에 나타납니다. 누르면 업데이트 칸이 열립니다 (11장)</td></tr>
     </tbody>
   </table>
   <p>프롬프터가 열려 있는 동안에는 첫 버튼이 <b>편집 모드로</b> 바뀌고 둘째 버튼은 숨습니다.</p>
 
-  <h3>편집 모드</h3>
-  <p>왼쪽은 원고 편집창, 오른쪽은 제어판입니다. 위에서부터 자주 만지는 순서로 놓았습니다.</p>
+  <h3>편집 모드와 설정 패널</h3>
+  <p>평소에는 원고 편집창이 창 전체를 씁니다. 상단 <b>설정</b> 을 누르면 오른쪽에 설정 패널이 열리고,
+  다시 누르면 닫힙니다. 패널을 열고 닫아도 편집창의 줄 배열은 그대로이고 크기만 바뀝니다.
+  카드는 위에서부터 자주 만지는 순서로 놓았습니다.</p>
   <table>
     <thead><tr><th>카드</th><th>내용</th></tr></thead>
     <tbody>
       <tr><td class="k">표시</td><td>글꼴 · 크기 · 줄 간격 · 좌우 여백 · 정렬 · 굵기 · 편집창 미리보기 · 어절 줄바꿈 · 화면에 잔여시간 표시</td></tr>
       <tr><td class="k">큐 라인</td><td>큐 라인 표시 · 큐 위치</td></tr>
+      <tr><td class="k">음성 추종</td><td>사용 여부 · 마이크 · 상태 (8장)</td></tr>
       <tr><td class="k">색</td><td>글자색 · 배경색 · 큐 라인 색</td></tr>
       <tr><td class="k">단축키</td><td>동작별 키 지정 · 마우스 조작 안내</td></tr>
       <tr><td class="k">출력 · 미러</td><td>출력 배치 · 모니터 선택 · 반전 처리 (설치할 때 한 번)</td></tr>
+      <tr><td class="k">업데이트</td><td>현재 버전 · 새 버전 확인 · 설치 (11장)</td></tr>
     </tbody>
   </table>
-  <p>원고창 머리말에는 <b>줄 수 · 글자 수 · 낭독 추정</b>이 늘 떠 있습니다.</p>
+  <p>원고창 머리말에는 <b>줄 수 · 글자 수 · 낭독 추정</b>과 <b>색 점</b>(3장), <b>불러오기 · 저장</b> 이 있습니다.</p>
 
   <h3 class="brk">프롬프터 모드</h3>
   <p>선택한 배치에 따라 두 가지로 동작합니다.</p>
@@ -238,7 +251,7 @@ npm run build:win
   </ul>
 
   <h3>운영자 바 (복제 배치)</h3>
-  <p>화면 하단에 속도 조절, 가운데 큼직한 누적 진행 시간, 오른쪽에 잔여시간과
+  <p>화면 하단에 속도 조절, 가운데 큼직한 누적 진행 시간, 오른쪽에 <b>추종</b> 버튼(8장), 잔여시간,
   <b>시작 · 처음으로 · 닫기</b> 버튼이 있습니다. 누적 시간은 멀리서도 읽히도록 크게 표시되므로,
   강의나 강연처럼 진행자가 경과 시간을 직접 확인해야 하는 경우 바를 켜 두고 쓰시면 됩니다.</p>
 
@@ -259,10 +272,11 @@ npm run build:win
   <p>특별한 표기 없이 <b>줄 단위로 그대로</b> 표시됩니다. 빈 줄은 문단 간격이 됩니다.
   원고에 지시문이나 표시를 위한 기호를 넣을 필요가 없습니다.</p>
 
-  <h3>편집창 미리보기</h3>
+  <h3>편집창 = 프롬프터 화면</h3>
   <p>편집창에 프롬프터와 같은 글꼴 · 크기 · 줄 간격 · 색 · 정렬 · 굵기가 그대로 적용됩니다.
-  글자 크기는 화면 폭 대비 편집창 폭 비율로 줄여 보여 주므로,
-  편집창에서 보이는 줄바꿈 위치가 실제 프롬프터와 거의 같습니다.</p>
+  <b>한 줄에 들어가는 글자도 프롬프터와 똑같습니다.</b> 원고를 출력 모니터 폭과 실제 글자 크기로
+  배치한 뒤 그림만 편집창에 맞게 줄여 보여 주기 때문입니다. 편집창에서 줄이 바뀌는 자리가
+  곧 출연자 화면에서 줄이 바뀌는 자리입니다.</p>
   <p>필요 없으면 <b>표시</b> 카드의 <b>편집창에 이 스타일 그대로 표시</b> 를 끄십시오.
   평범한 검정 배경 편집기로 돌아갑니다.</p>
 
@@ -279,9 +293,20 @@ npm run build:win
     <b>편집창과 프롬프터가 똑같이 줄을 바꿉니다.</b></p>
   </div>
 
+  <h3>글자에 색 입히기</h3>
+  <p>강조할 단어나 문장을 눈에 띄게 할 때 씁니다.</p>
+  <ol class="steps">
+    <li>편집창에서 색을 입힐 글자를 끌어서 고릅니다</li>
+    <li>원고창 머리말의 색 점(주황 · 빨강 · 초록 · 하늘 · 노랑)을 누릅니다</li>
+  </ol>
+  <p>빗금 친 점을 누르면 고른 글자의 색을 벗깁니다. 여러 줄에 걸쳐 골라도 됩니다.
+  5장의 <b>글자색</b>(원고 전체 색)과는 별개입니다.</p>
+
   <h3>불러오기 · 저장</h3>
-  <p>원고창 머리말 오른쪽의 <b>불러오기</b> · <b>저장</b> 으로 txt 파일을 주고받습니다.
-  파일은 UTF-8 로 읽고 씁니다.</p>
+  <p>원고창 머리말 오른쪽의 <b>불러오기</b> · <b>저장</b> 으로 원고 파일을 주고받습니다.
+  저장은 색이 유지되는 <code>.html</code> 이 기본이고, <code>.txt</code> 로도 저장할 수 있습니다(색은 빠짐).
+  불러오기는 둘 다 받습니다. 파일은 UTF-8 로 읽고 씁니다.</p>
+  <p>다른 곳에서 붙여 넣으면 글자만 들어옵니다. 워드나 웹의 서식은 섞이지 않습니다.</p>
   <div class="note plain">
     <b>한글이 깨져 보인다면</b>
     <p>옛날 ANSI(CP949)로 저장된 파일입니다. 메모장에서 열어
@@ -312,7 +337,7 @@ npm run build:win
 <!-- ══ 4 리그 설치 설정 ═══════════════════════════════ -->
 <section class="ch">
   <h2><i>4</i>리그 설치 설정</h2>
-  <p>제어판 맨 아래 <b>출력 · 미러</b> 카드에서 설정합니다. 리그를 설치할 때 한 번 잡아 두면 되는 항목입니다.</p>
+  <p>설정 패널의 <b>출력 · 미러</b> 카드에서 설정합니다. 리그를 설치할 때 한 번 잡아 두면 되는 항목입니다.</p>
 
   <h3>반전은 누가 처리하는가</h3>
   <p>하프미러 유리에 반사시키는 리그는 화면을 좌우로 뒤집어야 글이 바로 읽힙니다.
@@ -350,7 +375,8 @@ npm run build:win
   운영자 화면도 정상으로 보입니다. <b>확장</b> 배치는 주행 중에도 원고를 편집하거나
   다음 꼭지를 미리 볼 때 유용합니다.</p>
   <p>확장으로 바꾸려면 <kbd>Win</kbd> + <kbd>P</kbd> → <b>확장</b> 으로 설정한 뒤
-  <b>모니터 다시 검색</b> 을 누르십시오.</p>
+  <b>모니터 다시 검색</b> 을 누르십시오. Mac 은 <b>시스템 설정 → 디스플레이</b> 에서
+  미러링을 끄면 확장이 됩니다.</p>
 
   <h3>하프미러 리그 프리셋</h3>
   <p><b>하프미러 리그 프리셋 적용</b> 버튼을 누르면 다음이 한 번에 잡힙니다.</p>
@@ -455,6 +481,8 @@ npm run build:win
   <p>휠은 상황에 따라 하는 일이 달라집니다. 주행 중에 위치를 튕기면 출연자가 흐름을 놓치므로,
   읽고 있을 때는 조그휠처럼 <b>속도만</b> 바뀝니다. 굴리면서 출연자 속도에 맞추십시오.
   멈춰 있을 때는 위치를 잡아야 하므로 이동으로 동작합니다.</p>
+  <p><b>주행 중에는 마우스 커서가 사라집니다.</b> 출연자 화면에 화살표가 떠 있지 않게 하려는 것으로,
+  멈추면 다시 나타납니다.</p>
   <p>드래그는 큰 폭으로 옮길 때 편합니다. 살짝 눌렀다 떼면 클릭(시작/정지)으로,
   끌면 이동으로 구분됩니다. 상하 반전 중에도 손이 가는 방향과 화면이 맞도록 처리됩니다.</p>
 
@@ -523,16 +551,63 @@ npm run build:win
   잔여 시간이 실제 방송 시간과 맞아떨어집니다.</p>
 </section>
 
-<!-- ══ 8 단축키 ═══════════════════════════════════════ -->
+<!-- ══ 8 음성 추종 ════════════════════════════════════ -->
 <section class="ch">
-  <h2><i>8</i>단축키</h2>
+  <h2><i>8</i>음성 추종</h2>
+  <p>강의자가 읽는 자리를 마이크로 듣고 <b>주행 속도를 저절로 맞춥니다.</b>
+  받아쓰기가 아니라 '대본 어디쯤인지'를 찾는 방식이라, 인식이 꽤 틀려도 자리는 찾습니다.
+  실제 강의 녹음 두 편에서 줄 단위 위치 정확도가 98~100% 였습니다.
+  인터넷 없이 PC 안에서 처리합니다.</p>
+
+  <h3>켜기</h3>
+  <ol class="steps">
+    <li>설정 패널 <b>음성 추종</b> 카드에서 <b>음성 추종 사용</b> 을 켭니다</li>
+    <li>마이크를 고릅니다. 목록이 비어 있으면 <b>마이크 다시 검색</b></li>
+    <li>프롬프터를 엽니다 — 인식이 준비되고 상태가 <b>찾는 중</b> 으로 바뀝니다</li>
+    <li><kbd>Space</kbd> 로 시작하면, 읽는 속도에 맞춰 주행 속도가 따라갑니다</li>
+  </ol>
+  <p>카드의 막대는 마이크 입력 레벨입니다. 말할 때 움직이지 않으면 마이크 선택을 확인하십시오.</p>
+
+  <h3>상태 표시</h3>
+  <table>
+    <thead><tr><th>표시</th><th>뜻</th></tr></thead>
+    <tbody>
+      <tr><td class="k">사용 안 함</td><td>카드에서 꺼 둔 상태</td></tr>
+      <tr><td class="k">대기</td><td>켜 두었지만 프롬프터가 닫혀 있어 마이크를 열지 않은 상태</td></tr>
+      <tr><td class="k">찾는 중</td><td>읽는 자리를 아직 잡지 못함</td></tr>
+      <tr><td class="k">추종 중</td><td>자리를 잡고 속도를 맞추는 중. <b>(약함)</b> 은 확신이 낮은 상태</td></tr>
+      <tr><td class="k">놓치는 중</td><td>한동안 자리를 확인하지 못함 — 마지막 자리를 지키며 기다립니다</td></tr>
+      <tr><td class="k">수동</td><td>사람이 손을 대서 추종을 내려놓은 상태</td></tr>
+      <tr><td class="k">오류</td><td>마이크를 열지 못했거나 인식이 멈춤 — 아래 안내 문구를 보십시오</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="brk">사람 손이 항상 우선입니다</h3>
+  <p>휠 · 드래그 · 미세 이동 · 반 화면 이동 · 속도 조작 — <b>무엇이든 건드리면 즉시 수동으로 돌아옵니다.</b>
+  다시 맡기려면 <kbd>F8</kbd> 을 누르거나 운영자 바의 <b>추종</b> 버튼을 누릅니다.</p>
+
+  <div class="note">
+    <b>애드립 · NG 에서는 기다립니다</b>
+    <p>대본에서 벗어난 말은 곧 같은 자리로 돌아오므로 <b>마지막 자리를 지킵니다.</b>
+    혼자 앞서 가지 않습니다. 강의자가 대본으로 돌아오면 다시 따라갑니다.
+    오래 쉬어도 고장으로 보지 않습니다 — 쉬는 동안에는 기다립니다.</p>
+  </div>
+  <div class="note plain">
+    <b>주행 부드러움에는 영향이 없습니다</b>
+    <p>인식은 별도 프로세스에서 돕니다. 부하는 CPU 한 코어의 3~4% 정도입니다.</p>
+  </div>
+</section>
+
+<!-- ══ 9 단축키 ═══════════════════════════════════════ -->
+<section class="ch">
+  <h2><i>9</i>단축키</h2>
 
   <div class="note warn">
     <b>v3.0.1 에서 기본 키가 바뀌었습니다</b>
     <p>프롬프터 열기가 <kbd>F5</kbd> 계열에서 <kbd>F9</kbd> 계열로, 처음으로가
     <kbd>F6</kbd> 에서 <kbd>F10</kbd> 으로 바뀌었습니다.
     <b>이전 버전을 쓰던 PC 에서는 저장된 설정이 우선하므로</b>, 새 기본값을 쓰시려면
-    제어판 <b>단축키</b> 카드의 <b>기본값으로 되돌리기</b> 를 한 번 누르십시오.</p>
+    설정 패널 <b>단축키</b> 카드의 <b>기본값으로 되돌리기</b> 를 한 번 누르십시오.</p>
   </div>
 
   <h3>기본값</h3>
@@ -551,13 +626,14 @@ npm run build:win
       <tr><td class="k">반 화면 아래로</td><td class="key"><kbd>PgDn</kbd></td><td>—</td></tr>
       <tr><td class="k">글자 작게</td><td class="key"><kbd>←</kbd></td><td>−4</td></tr>
       <tr><td class="k">글자 크게</td><td class="key"><kbd>→</kbd></td><td>+4</td></tr>
+      <tr><td class="k">음성 추종 켜기 / 끄기</td><td class="key"><kbd>F8</kbd></td><td>8장</td></tr>
       <tr><td class="k">운영자 바 표시</td><td class="key"><kbd>Tab</kbd></td><td>켜기 / 끄기</td></tr>
       <tr><td class="k">프롬프터 닫기</td><td class="key"><kbd>Esc</kbd></td><td>—</td></tr>
     </tbody>
   </table>
 
   <h3>재지정 방법</h3>
-  <p>제어판 <b>단축키</b> 카드에서 오른쪽 버튼을 누르고 원하는 키를 입력하면 바로 지정됩니다.</p>
+  <p>설정 패널 <b>단축키</b> 카드에서 오른쪽 버튼을 누르고 원하는 키를 입력하면 바로 지정됩니다.</p>
   <ul>
     <li><kbd>Esc</kbd> — 취소</li>
     <li><kbd>Delete</kbd> — 지정 해제</li>
@@ -567,7 +643,7 @@ npm run build:win
   <b>기본값으로 되돌리기</b> 로 위 표의 상태로 복구할 수 있습니다.</p>
 
   <h3>마우스 조작</h3>
-  <p>제어판 <b>단축키</b> 카드 아래쪽에 마우스 조작이 함께 정리되어 있습니다.
+  <p>설정 패널 <b>단축키</b> 카드 아래쪽에 마우스 조작이 함께 정리되어 있습니다.
   키처럼 바꿀 수는 없고 보여 주기만 하는 항목이라 회색으로 구분해 두었습니다.</p>
   <table>
     <thead><tr><th>동작</th><th>조작</th></tr></thead>
@@ -589,24 +665,25 @@ npm run build:win
   </div>
 
   <div class="note plain">
-    <b><kbd>F5</kbd> 와 <kbd>Ctrl</kbd>+<kbd>R</kbd> 은 막혀 있습니다</b>
+    <b><kbd>F5</kbd> 와 <kbd>Ctrl</kbd>+<kbd>R</kbd>(Mac 은 <kbd>⌘</kbd>+<kbd>R</kbd>) 은 막혀 있습니다</b>
     <p>화면을 새로 고치는 키라 방송 중에 눌리면 원고가 날아갑니다.
     프롬프터 열기에 더 이상 쓰이지 않더라도 차단은 그대로 두었습니다.</p>
   </div>
 </section>
 
-<!-- ══ 9 실전 운용 절차 ═══════════════════════════════ -->
+<!-- ══ 10 실전 운용 절차 ══════════════════════════════ -->
 <section class="ch">
-  <h2><i>9</i>실전 운용 절차</h2>
+  <h2><i>10</i>실전 운용 절차</h2>
 
   <h3>최초 설치 시 (한 번만)</h3>
   <ol class="steps">
     <li>모니터의 좌우반전 기능을 켭니다 (있는 경우)</li>
-    <li>제어판 맨 아래 <b>출력 · 미러</b> → <b>하프미러 리그 프리셋 적용</b></li>
+    <li>상단 <b>설정</b> → <b>출력 · 미러</b> → <b>하프미러 리그 프리셋 적용</b></li>
     <li>출력 배치 선택 — 복제 또는 확장</li>
     <li>이전 버전을 쓰던 PC 라면 <b>단축키</b> 카드의 <b>기본값으로 되돌리기</b></li>
     <li>프롬프터를 열고 유리에서 글이 바로 읽히는지 확인</li>
     <li>출연자 위치에서 글자 크기와 큐 라인 위치를 맞춥니다</li>
+    <li>음성 추종을 쓸 경우 마이크를 고르고, 말할 때 레벨 막대가 움직이는지 확인합니다</li>
   </ol>
   <p>설정은 자동 저장되므로 다음 실행에도 유지됩니다.</p>
 
@@ -647,9 +724,43 @@ npm run build:win
   누적 시간이 완성본 길이에 가까운 값으로 유지됩니다.</p>
 </section>
 
-<!-- ══ 10 문제 해결 ═══════════════════════════════════ -->
+<!-- ══ 11 업데이트 ═══════════════════════════════════ -->
 <section class="ch">
-  <h2><i>10</i>문제 해결</h2>
+  <h2><i>11</i>업데이트</h2>
+  <p>설정 패널 맨 아래 <b>업데이트</b> 카드에서 합니다. 설정과 원고는 그대로 남습니다.</p>
+
+  <h3>인터넷이 되는 PC</h3>
+  <p>프로그램을 켜면 새 버전이 있는지 저절로 확인하고, 있으면 로고 옆에 <b>새 버전 v…</b> 이 나타납니다.</p>
+  <ol class="steps">
+    <li><b>새 버전 v…</b> 을 누르거나 업데이트 카드의 <b>인터넷으로 확인</b></li>
+    <li><b>받기</b> — 받는 동안 진행 막대가 나옵니다. 다시 누르면 취소</li>
+    <li><b>지금 설치하고 다시 시작</b></li>
+  </ol>
+  <p>받은 파일은 GitHub 이 알려 준 값과 대조해 손상 여부를 확인한 뒤에만 설치합니다.</p>
+
+  <h3>인터넷이 없는 PC (프롬프터 PC)</h3>
+  <ol class="steps">
+    <li>인터넷이 되는 곳에서 새 설치 파일을 받아 USB · NAS 에 둡니다</li>
+    <li>업데이트 카드의 <b>설치 파일 고르기</b> 로 그 파일을 고릅니다 — 지난번 고른 폴더가 먼저 열립니다</li>
+    <li><b>지금 설치하고 다시 시작</b></li>
+  </ol>
+  <p>같거나 더 낮은 버전을 고르면 한 번 더 묻습니다. 이전 버전으로 되돌릴 때 쓸 수 있습니다.</p>
+
+  <div class="note warn">
+    <b>저절로 받거나 설치하지 않습니다</b>
+    <p>확인만 저절로 하고, 받기와 설치는 누를 때만 합니다. 방송 중에 프로그램이 닫히면 안 되기 때문입니다.
+    <b>프롬프터가 열려 있으면 설치하지 않습니다.</b> 설치 직전에 원고와 설정을 저장합니다.</p>
+  </div>
+
+  <h3>Mac</h3>
+  <p>순서는 같습니다. 마지막 단계가 <b>닫고 dmg 열기</b> 로 바뀌는데, 프로그램이 닫히고 dmg 가 열리면
+  <b>CHOFLIX PROMPTER</b> 를 <b>Applications</b> 로 끌어 놓아 바꾼 뒤 다시 실행하십시오.
+  처음 열 때처럼 <b>그래도 열기</b> 를 한 번 더 물을 수 있습니다(1장).</p>
+</section>
+
+<!-- ══ 12 문제 해결 ══════════════════════════════════ -->
+<section class="ch">
+  <h2><i>12</i>문제 해결</h2>
   <table>
     <thead><tr><th>증상</th><th>원인과 대처</th></tr></thead>
     <tbody>
@@ -672,32 +783,48 @@ npm run build:win
           <td>ANSI(CP949)로 저장된 파일입니다. 메모장에서 UTF-8 로 다시 저장하십시오.</td></tr>
       <tr><td class="k">어절이 줄 끝에서 갈라진다</td>
           <td><b>표시</b> 카드의 <b>어절 단위 줄바꿈</b> 을 켜십시오.</td></tr>
-      <tr><td class="k">프로그램이 실행되지 않는다</td>
-          <td><code>ChoflixPrompter.exe</code> 만 따로 꺼내 두지 않았는지 확인하십시오.
-              폴더 전체가 함께 있어야 합니다.</td></tr>
-      <tr><td class="k">exe 아이콘이 예전 것으로 보인다</td>
-          <td>윈도우 아이콘 캐시 문제입니다. 폴더를 다른 이름으로 풀거나 탐색기를 다시 시작하십시오.</td></tr>
+      <tr><td class="k">Mac 에서 "열 수 없음" 이 뜬다</td>
+          <td>공증하지 않은 앱이라 처음 한 번 막힙니다. <b>시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기</b> (1장).</td></tr>
+      <tr><td class="k">음성 추종이 오류로 뜬다</td>
+          <td>마이크를 열지 못한 경우가 대부분입니다. 마이크 선택을 확인하고 <b>마이크 다시 검색</b>.
+              Mac 은 <b>시스템 설정 → 개인정보 보호 및 보안 → 마이크</b> 에서 CHOFLIX PROMPTER 를 허용하십시오.</td></tr>
+      <tr><td class="k">음성 추종이 계속 '찾는 중' 이다</td>
+          <td>레벨 막대가 움직이는지 보십시오. 움직이지 않으면 다른 마이크가 골라져 있습니다.
+              편집창 원고와 실제로 읽는 원고가 같은지도 확인하십시오.</td></tr>
+      <tr><td class="k">새 버전이 있는데 '새 버전' 이 안 뜬다</td>
+          <td>인터넷이 없는 PC 에서는 뜨지 않습니다. <b>설치 파일 고르기</b> 를 쓰십시오 (11장).</td></tr>
       <tr><td class="k">글자가 튀거나 스크롤이 끊긴다</td>
           <td>다른 프로그램이 GPU 를 점유하고 있을 수 있습니다.
               방송용 PC 에서는 불필요한 프로그램을 닫아 두십시오.</td></tr>
       <tr><td class="k">편집 중 잔여 · 전체가 <code>00:00:00</code> 이다</td>
-          <td>v3.0 까지의 증상입니다. v3.0.1 에서 해결되었으므로 버전을 확인하십시오.
-              화면 왼쪽 위 로고 아래에 표시됩니다.</td></tr>
+          <td>v3.0 까지의 증상입니다. 버전을 확인하십시오.
+              화면 왼쪽 위 로고 아래, 또는 업데이트 카드에 표시됩니다.</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ══ 11 파일 위치 ═══════════════════════════════════ -->
+<!-- ══ 13 파일 위치 ══════════════════════════════════ -->
 <section class="ch">
-  <h2><i>11</i>파일 위치</h2>
+  <h2><i>13</i>파일 위치</h2>
+  <h3>Windows</h3>
   <table>
     <thead><tr><th>항목</th><th>경로</th></tr></thead>
     <tbody>
-      <tr><td class="k">설정 · 단축키</td><td><code>%APPDATA%\CHOFLIX PROMPTER\config.json</code></td></tr>
-      <tr><td class="k">원고 자동 보존본</td><td><code>%APPDATA%\CHOFLIX PROMPTER\last_script.txt</code></td></tr>
-      <tr><td class="k">프로그램</td><td>압축을 푼 폴더의 <code>ChoflixPrompter.exe</code></td></tr>
+      <tr><td class="k">설정 · 단축키</td><td><code>%APPDATA%\choflix-prompter\config.json</code></td></tr>
+      <tr><td class="k">원고 자동 보존본</td><td><code>%APPDATA%\choflix-prompter\last_script.html</code></td></tr>
+      <tr><td class="k">프로그램</td><td><code>%LOCALAPPDATA%\Programs\CHOFLIX PROMPTER\</code></td></tr>
     </tbody>
   </table>
+  <h3>Mac</h3>
+  <table>
+    <thead><tr><th>항목</th><th>경로</th></tr></thead>
+    <tbody>
+      <tr><td class="k">설정 · 원고 보존본</td><td><code>~/Library/Application Support/choflix-prompter/</code></td></tr>
+      <tr><td class="k">프로그램</td><td><code>/Applications/CHOFLIX PROMPTER.app</code></td></tr>
+    </tbody>
+  </table>
+  <p>원고 보존본은 v3.2 부터 색을 담느라 <code>last_script.html</code> 입니다.
+  예전 <code>last_script.txt</code> 가 있으면 그것도 읽습니다.</p>
   <p>설정 파일을 지우면 모든 설정이 기본값으로 돌아갑니다.
   다른 PC 로 설정을 옮기려면 <code>config.json</code> 을 복사하십시오.</p>
   <p>주소창에 <code>%APPDATA%</code> 를 입력하면 해당 폴더가 열립니다.</p>
@@ -718,7 +845,7 @@ npm run build:win
   <div style="margin-top:20mm; padding-top:4mm; border-top:2px solid var(--accent);
               display:flex; justify-content:space-between; font-size:9pt; color:var(--sub)">
     <div><b style="color:var(--accent)">CHOFLIX PROMPTER</b> · CHOFLIX AI LAB</div>
-    <div>이 문서는 v3.0.1 기준으로 작성되었습니다.</div>
+    <div>이 문서는 v3.4.0 기준으로 작성되었습니다.</div>
   </div>
 </section>
 

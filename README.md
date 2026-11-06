@@ -11,7 +11,8 @@
 
 `Electron` · `Windows 10 / 11` · `macOS (Apple Silicon)` · `MIT`
 
-**[⬇ 최신 배포본 받기 (Releases)](https://github.com/fmj96/choflix-prompter/releases/latest)**
+**[⬇ 최신 배포본 받기 (Releases)](https://github.com/fmj96/choflix-prompter/releases/latest)** ·
+**[📖 사용설명서 (PDF)](docs/CHOFLIX_PROMPTER_Manual.pdf)**
 
 </div>
 
@@ -23,6 +24,7 @@
 - 관리자 권한이 필요 없습니다 — 사용자 폴더에 설치됩니다
 - 인터넷이 필요 없습니다 — 음성 추종 모델까지 설치 파일에 들어 있습니다
 - 첫 실행에서 SmartScreen 이 뜨면 `추가 정보` → `실행` 을 누르십시오 (서명되지 않은 실행 파일)
+- 자세한 사용법은 [사용설명서 PDF](docs/CHOFLIX_PROMPTER_Manual.pdf) 를 보십시오
 
 **Mac (Apple Silicon)** — `ChoflixPrompter-<버전>-mac-arm64.dmg` 를 열어 앱을 `Applications` 로 끌어 놓으십시오.
 처음 열 때 macOS 가 막으면 `시스템 설정 → 개인정보 보호 및 보안` 맨 아래 `그래도 열기` 를 누르십시오
@@ -148,8 +150,9 @@ npm run build:mac     # dist/ChoflixPrompter-<버전>-mac-arm64.dmg  (Apple Sili
 
 | 항목 | 경로 |
 |---|---|
-| 설정 · 단축키 | `%APPDATA%\CHOFLIX PROMPTER\config.json` |
-| 원고 자동 보존본 | `%APPDATA%\CHOFLIX PROMPTER\last_script.html` |
+| 설정 · 단축키 | `%APPDATA%\choflix-prompter\config.json` |
+| 원고 자동 보존본 | `%APPDATA%\choflix-prompter\last_script.html` |
+| Mac | `~/Library/Application Support/choflix-prompter/` |
 
 ## 구조
 

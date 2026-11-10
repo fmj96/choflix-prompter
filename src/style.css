@@ -59,7 +59,9 @@ html,body{height:100%;overflow:hidden;background:var(--console);color:var(--ink)
 .top .mid{display:flex;align-items:center;gap:14px;white-space:nowrap}
 .top .mid input[type=range]{min-width:120px}
 .clocks{flex:none;display:flex;gap:18px}
-.top .starts{flex:none;display:flex;align-items:center;gap:10px}
+/* 좁은 창에서 상단바가 접히면 둘째 줄 왼쪽에 붙어 버린다.
+   어느 줄에 놓이든 오른쪽 끝으로 민다. */
+.top .starts{flex:none;margin-left:auto;display:flex;align-items:center;gap:10px}
 .clock{text-align:right;cursor:default}
 .clock.click{cursor:pointer}
 .clock em{display:block;font-style:normal;font-size:10px;color:var(--muted);font-weight:600}
@@ -138,7 +140,12 @@ button.wide{width:100%;margin-top:6px}
 .opbar .badge{font-size:11px}
 
 /* ── 업데이트 ── */
-.upd{border-color:var(--cue);color:var(--cue);margin-left:6px}
+/* 평소에는 조용히 있다가, 새 버전이 있을 때만 큐 색으로 드러난다 */
+.upd{margin-left:8px;font-size:11px;padding:3px 9px;
+  border-color:var(--rule);color:var(--muted);background:transparent}
+.upd:hover{background:#1c222b;color:var(--ink)}
+.upd.new{border-color:var(--cue);color:var(--cue);font-weight:700}
+.upd.new:hover{background:#2a1f08;color:var(--cue)}
 .ver{font-family:var(--mono);font-weight:400;color:var(--cue);font-size:12.5px}
 #updBar{margin:8px 0 2px}
 .hint code{font-family:var(--mono);font-size:10.5px;color:var(--ink)}

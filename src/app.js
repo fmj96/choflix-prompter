@@ -813,6 +813,17 @@ const updMac = cx.platform === 'darwin';
 const updSay = t => { $('#updMsg').textContent = t; };
 const mb = n => (n / 1048576).toFixed(0) + 'MB';
 
+/**
+ * 제목 옆 배지. 늘 보이되 평소에는 조용히 있는다.
+ * 프롬프터 PC 는 인터넷이 없어 확인이 실패하는 것이 정상이므로,
+ * 실패를 경고처럼 띄우지 않고 누를 수 있는 상태로 되돌린다.
+ */
+function updBadge(state, text) {
+  const b = $('#updBadge');
+  b.textContent = text;
+  b.classList.toggle('new', state === 'new');
+}
+
 function openSettings() {
   $('.body').classList.add('settings');
   $('#settingsBtn').classList.add('on');
@@ -821,11 +832,19 @@ function openSettings() {
 async function updCheck(quiet) {
   if (updBusy) return;
   if (!quiet) updSay('확인하는 중...');
+  updBadge('busy', '확인 중…');
   const r = await cx.updCheck();
-  if (!r.ok) { if (!quiet) updSay(r.error + ' — 설치 파일 고르기를 쓰십시오.'); return; }
-  if (!r.available) { if (!quiet) updSay(`최신 버전입니다 (v${r.current}).`); return; }
-  $('#updBadge').textContent = `새 버전 v${r.latest}`;
-  $('#updBadge').hidden = false;
+  if (!r.ok) {
+    updBadge('idle', '업데이트');            // 인터넷이 없으면 여기로 온다. 조용히 둔다.
+    if (!quiet) updSay(r.error + ' — 설치 파일 고르기를 쓰십시오.');
+    return;
+  }
+  if (!r.available) {
+    updBadge('ok', '최신 버전');
+    if (!quiet) updSay(`최신 버전입니다 (v${r.current}).`);
+    return;
+  }
+  updBadge('new', `새 버전 v${r.latest}`);
   updSay(`새 버전 v${r.latest} 이 있습니다 (${mb(r.size)}).`);
   $('#updGet').textContent = '받기';
   $('#updGet').hidden = false;
@@ -894,6 +913,8 @@ function bindUpdate() {
     openSettings();
     // 방금 열린 패널은 다음 프레임에야 자리를 잡는다
     requestAnimationFrame(() => { const p = $('#panel'); p.scrollTop = p.scrollHeight; });
+    // 아직 새 버전을 못 찾았으면 누른 김에 다시 본다
+    if (!$('#updBadge').classList.contains('new')) updCheck(false);
   };
   setTimeout(() => updCheck(true), 4000);         // 시작 화면이 다 뜬 뒤에
 }

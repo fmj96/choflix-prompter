@@ -355,6 +355,39 @@ function readEditor() {
   return rtParse($('#script').innerHTML).join('\n');
 }
 
+/**
+ * 편집창은 '한 줄 = <div> 하나' 여야 한다. 커서가 몇 번째 줄에 있는지,
+ * 되돌아올 때 몇 번째 칸으로 갈지를 모두 이 구조로 세기 때문이다.
+ *
+ * 그런데 빈 편집창에 붙여넣으면 크로뮴이 **첫 줄만 div 없이 맨 글자로** 남긴다.
+ * 그러면 칸 수가 줄 수보다 모자라 번호가 통째로 밀린다 —
+ * 실측으로 8줄 원고에 칸이 7개였고, 중간부터 열면 한 줄 위에서 시작했다.
+ *
+ * 글자 노드를 그대로 옮기므로 커서는 따라온다. 이미 칸이 다 div 면 아무 일도 하지 않는다.
+ */
+function normalizeEditor() {
+  const el = $('#script');
+  const isDiv = n => n.nodeType === 1 && n.tagName === 'DIV';
+  let n = el.firstChild, touched = false;
+  while (n) {
+    if (isDiv(n)) { n = n.nextSibling; continue; }
+    const d = document.createElement('div');
+    el.insertBefore(d, n);
+    let x = n;
+    while (x && !isDiv(x)) {                 // 다음 칸이 나오기 전까지가 한 줄이다
+      const next = x.nextSibling;
+      const br = x.nodeType === 1 && x.tagName === 'BR';
+      d.appendChild(x);
+      x = next;
+      if (br) break;                         // <br> 에서 줄이 끊긴다
+    }
+    if (!d.firstChild) d.appendChild(document.createElement('br'));
+    touched = true;
+    n = d.nextSibling;
+  }
+  return touched;
+}
+
 /** 원고의 글자만. 글자수 · 시간 계산 · 음성 추종이 쓴다. */
 const plainOf = html => (html || '').split('\n').map(rtPlain).join('\n');
 
@@ -772,6 +805,7 @@ function bindAll() {
   $('#opElapsedBox').onclick = e => { e.stopPropagation(); stage.resetElapsed(); };
 
   $('#script').addEventListener('input', () => {
+    normalizeEditor();              // 붙여넣기가 만든 어긋난 구조를 먼저 바로잡는다
     setText(readEditor(), true);
     $('#notice').textContent = '';
   });

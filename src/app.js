@@ -385,6 +385,16 @@ function normalizeEditor() {
     touched = true;
     n = d.nextSibling;
   }
+  // 빈 칸에는 <br> 이 있어야 한 줄 높이를 차지한다. 없으면 눈에서 사라진다.
+  // 남아 있는 \r 도 여기서 걷어낸다 — 보이지 않으면서 글자수만 늘린다.
+  for (const d of el.children) {
+    const w = document.createTreeWalker(d, NodeFilter.SHOW_TEXT);
+    let t;
+    while ((t = w.nextNode())) {
+      if (t.textContent.includes('\r')) { t.textContent = t.textContent.replace(/\r/g, ''); touched = true; }
+    }
+    if (!d.textContent && !d.querySelector('br')) { d.appendChild(document.createElement('br')); touched = true; }
+  }
   return touched;
 }
 
@@ -810,10 +820,14 @@ function bindAll() {
     $('#notice').textContent = '';
   });
   // 붙여넣기는 글자만 받는다. 워드나 웹에서 가져온 서식이 섞이면 원고가 지저분해진다.
+  //
+  // 워드는 줄바꿈을 \r\n 으로 준다. Windows 크로뮴은 \n 으로만 줄을 나누고
+  // \r 은 글자로 남겨, 빈 줄이 '\r 한 글자짜리 칸' 이 되어 높이 0 으로 사라진다.
+  // 글자가 있는 줄도 끝에 보이지 않는 \r 이 붙는다. 그래서 넣기 전에 걷어낸다.
   $('#script').addEventListener('paste', e => {
     e.preventDefault();
     const t = (e.clipboardData || window.clipboardData).getData('text/plain');
-    document.execCommand('insertText', false, t);
+    document.execCommand('insertText', false, t.replace(/\r\n?/g, '\n'));
   });
   ['click', 'keyup', 'select'].forEach(ev =>
     $('#script').addEventListener(ev, () => { if (!promptOpen) paintEstimate(); }));

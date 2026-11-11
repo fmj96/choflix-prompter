@@ -218,6 +218,27 @@ ipcMain.handle('update:pick', () => updater.pickFile());
 ipcMain.handle('update:install', () => updater.install());
 
 // ── 수명 ───────────────────────────────────────────────────
-app.whenReady().then(createConsole);
+/**
+ * 한 번에 한 벌만 돈다.
+ *
+ * 두 벌이 함께 돌면 config.json 과 last_script.html 을 서로 덮어쓴다.
+ * 나중에 닫히는 쪽이 이기므로, 멀쩡히 쓰던 원고가 옛 원고로 되돌아갈 수 있다.
+ * 업데이트 직후가 특히 위험하다 — 설치 파일이 /RUN 으로 다시 띄우는데,
+ * 사람은 창이 사라진 것만 보고 아이콘을 한 번 더 누르기 때문이다.
+ * 그렇게 두 벌이 뜨면 메모리도 두 배로 먹어 PC 전체가 느려진다.
+ *
+ * 두 번째는 조용히 물러나고, 대신 이미 떠 있는 창을 앞으로 가져온다.
+ */
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (!consoleWin || consoleWin.isDestroyed()) return;
+    if (consoleWin.isMinimized()) consoleWin.restore();
+    consoleWin.show();
+    consoleWin.focus();
+  });
+  app.whenReady().then(createConsole);
+}
 app.on('window-all-closed', () => { stopAsr(); app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createConsole(); });

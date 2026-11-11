@@ -81,9 +81,12 @@ class Engine {
     this.el.lines.replaceChildren(...lines.map(t => {
       const d = document.createElement('div');
       d.className = 'ln';
-      // 원고에는 색이 들어간 span 이 섞일 수 있다.
+      // 원고 한 줄은 '글자'가 아니라 '인라인 HTML' 이다. 색이 들어간 span 이
+      // 섞일 수 있고, < > & 는 &lt; &gt; &amp; 로 적혀 있다.
+      // 그래서 & 가 든 줄도 HTML 로 그려야 한다 — 글자로 넣으면 독자에게
+      // &lt;추가질문&gt; 이 그대로 찍힌다. (편집창은 늘 HTML 로 그리므로 거기서는 멀쩡했다)
       // 바깥에서 들어온 원고도 반드시 richtext 의 정화를 거친 것만 그린다.
-      if (t.includes('<')) d.innerHTML = rtParse(t).join('') || '&nbsp;';
+      if (t.includes('<') || t.includes('&')) d.innerHTML = rtParse(t).join('') || '&nbsp;';
       else d.textContent = t.length ? t : '\u00a0';
       return d;
     }));

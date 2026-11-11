@@ -109,7 +109,7 @@
     원고 작성부터 주행 제어, 엔지 대응까지 한 프로그램에서 처리합니다.
   </p>
   <div class="meta">
-    <div><b>Version 3.4.0</b><br>Windows 10 / 11 · macOS (Apple Silicon)</div>
+    <div><b>Version 3.4.5</b><br>Windows 10 / 11 · macOS (Apple Silicon)</div>
     <div class="r">CHOFLIX AI LAB<br>2026</div>
   </div>
 </section>
@@ -220,7 +220,11 @@
       <tr><td class="k">프롬프터 (처음부터)</td><td>원고 맨 앞으로 되감고 시작. 누적 시간도 초기화</td></tr>
       <tr><td class="k">프롬프터 (중간부터)</td><td>편집창 커서가 놓인 줄부터 시작</td></tr>
       <tr><td class="k">설정</td><td>오른쪽 설정 패널을 열고 닫습니다</td></tr>
-      <tr><td class="k">새 버전 v…</td><td>새 버전이 있을 때만 로고 옆에 나타납니다. 누르면 업데이트 칸이 열립니다 (11장)</td></tr>
+      <tr><td class="k">업데이트 배지</td>
+          <td>로고 오른쪽에 <b>늘</b> 있습니다. 누르면 새 버전을 확인하고 업데이트 칸이 열립니다 (11장).<br>
+              <code>업데이트</code> 평소 · <code>확인 중…</code> · <code>최신 버전</code> ·
+              <code>새 버전 v…</code> 새 버전이 있을 때만 주황색으로 켜집니다.<br>
+              인터넷이 없는 PC 에서는 확인이 실패하는 것이 정상이라, 경고 없이 <code>업데이트</code> 로 돌아갑니다.</td></tr>
     </tbody>
   </table>
   <p>프롬프터가 열려 있는 동안에는 첫 버튼이 <b>편집 모드로</b> 바뀌고 둘째 버튼은 숨습니다.</p>
@@ -331,6 +335,16 @@
     <b>안전장치</b>
     <p>임시 파일에 먼저 쓴 뒤 바꿔치우는 방식이라, 저장 도중 전원이 나가도 이전 보존본이 깨지지 않습니다.
     다만 보존본은 <b>한 벌만</b> 유지되므로, 여러 원고를 보관하시려면 <b>저장</b> 으로 따로 파일을 만드십시오.</p>
+  </div>
+
+  <div class="note">
+    <b>v3.4.2 이하에서 원고가 불어난 경우</b>
+    <p>v3.2.0 ~ v3.4.2 에는 보존본을 열 때마다 빈 줄과 <code>CHOFLIX PROMPTER 원고</code> 줄이
+    한 벌씩 더 붙는 결함이 있었습니다. 열고 닫기를 되풀이할수록 원고가 배로 불어나
+    프로그램이 무거워지고, 중간부터 열면 엉뚱한 줄에서 시작했습니다.</p>
+    <p><b>v3.4.3 부터는 그렇게 불어난 보존본을 열면 저절로 원본으로 되돌립니다.</b>
+    색도 그대로 남습니다. 되살릴 때 연달아 붙은 빈 줄은 한 줄로 모으므로,
+    일부러 두 줄씩 띄워 두셨던 자리는 한 줄이 됩니다.</p>
   </div>
 </section>
 
@@ -796,6 +810,13 @@
       <tr><td class="k">글자가 튀거나 스크롤이 끊긴다</td>
           <td>다른 프로그램이 GPU 를 점유하고 있을 수 있습니다.
               방송용 PC 에서는 불필요한 프로그램을 닫아 두십시오.</td></tr>
+      <tr><td class="k">열 때마다 빈 줄이 늘어난다</td>
+          <td>v3.4.2 까지의 증상입니다. <b>v3.4.3 이상</b> 으로 올리면 불어난 원고를 저절로 되돌립니다 (3장).</td></tr>
+      <tr><td class="k">중간부터 열면 엉뚱한 줄에서 시작한다</td>
+          <td>v3.4.3 까지의 증상입니다. <b>v3.4.4 이상</b> 으로 올리십시오.</td></tr>
+      <tr><td class="k">워드에서 붙여넣으면 빈 줄이 사라진다</td>
+          <td>v3.4.4 까지의 증상입니다. 원고 자체는 멀쩡하고 편집창에서만 안 보였습니다.
+              <b>v3.4.5 이상</b> 으로 올리십시오.</td></tr>
       <tr><td class="k">편집 중 잔여 · 전체가 <code>00:00:00</code> 이다</td>
           <td>v3.0 까지의 증상입니다. 버전을 확인하십시오.
               화면 왼쪽 위 로고 아래, 또는 업데이트 카드에 표시됩니다.</td></tr>
@@ -845,7 +866,7 @@
   <div style="margin-top:20mm; padding-top:4mm; border-top:2px solid var(--accent);
               display:flex; justify-content:space-between; font-size:9pt; color:var(--sub)">
     <div><b style="color:var(--accent)">CHOFLIX PROMPTER</b> · CHOFLIX AI LAB</div>
-    <div>이 문서는 v3.4.0 기준으로 작성되었습니다.</div>
+    <div>이 문서는 v3.4.5 기준으로 작성되었습니다.</div>
   </div>
 </section>
 

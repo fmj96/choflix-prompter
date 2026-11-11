@@ -23,7 +23,10 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
 const VERSION = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8')).version;
-const out = path.resolve(process.argv[2] || path.join(root, '..', '문서'));
+// NAS(SMB) 는 한글 폴더 이름을 자모를 풀어(NFD) 적어 두는 일이 있다.
+// 같은 이름인데도 합쳐진 꼴(NFC)로 만들려 들면 ENOENT 가 난다. 이미 있는 쪽을 쓴다.
+let out = path.resolve(process.argv[2] || path.join(root, '..', '문서'));
+if (!existsSync(out) && existsSync(out.normalize('NFD'))) out = out.normalize('NFD');
 
 const CHROME = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',

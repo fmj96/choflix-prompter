@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| 현재 버전 | **v3.0 (Electron)** — 이 저장소 |
+| 현재 버전 | **v3.4.5 (Electron)** — 이 저장소 |
 | 이전 버전 | v2.7 (C# WPF) — 별도 보관, 참고용 |
 | 대상 OS | Windows 10 / 11 (주), macOS Apple Silicon (v3.4~) |
 
@@ -221,6 +221,73 @@ Mac 용 Electron 실행 파일을 일부러 받지 않기 때문입니다(아래
 편집 콘솔의 배치 · 시간 계산 · 운영자 바까지 확인할 수 있고,
 파일 저장 · 모니터 배치 · 확장 배치 출력 창은 흉내만 냅니다.
 
+### Mac 에서만 시험하면 Windows 전용 결함을 놓칩니다
+
+v3.4.4 와 v3.4.5 가 그렇게 샜습니다. 둘 다 Mac 크로뮴에서는 **아예 재현되지 않습니다.**
+
+| 결함 | Mac | Windows |
+|---|---|---|
+| 붙여넣은 첫 줄이 `<div>` 로 안 감싸임 | 재현됨 | 재현됨 |
+| 워드의 `\r` 이 글자로 남음 | **안 남음** | 남음 |
+
+편집창 · 붙여넣기 · 줄 번호를 건드렸으면 **실제 Windows 배포본을 wine 으로 띄워** 확인하십시오.
+원격 디버깅을 열면 편집창 DOM 을 그대로 들여다볼 수 있습니다.
+
+```bash
+export WINEPREFIX=/tmp/wp-choflix          # 반드시 따로 만든 prefix 에서
+cd dist/ChoflixPrompter-win32-x64
+wine ChoflixPrompter.exe --no-sandbox --disable-gpu --remote-debugging-port=9222
+curl -s http://127.0.0.1:9222/json         # webSocketDebuggerUrl 을 얻어 CDP 로 붙는다
+```
+
+`Runtime.evaluate` 로 `$('#script').children` 의 `innerHTML` 과 높이를 찍어 보면
+빈 줄이 높이 0 인지, `\r` 이 남아 있는지 한눈에 보입니다. 끝나면 `wineserver -k` 로 닫고
+그 prefix 를 지우십시오.
+
+### 편집창은 '한 줄 = `<div>` 하나' 여야 합니다
+
+커서가 몇 번째 줄에 있는지(`caretRow`), 되돌아올 때 몇 번째 칸으로 갈지(`editorToRow`),
+색을 입힐 범위(`spot` · `reselect`) 가 전부 이 구조를 셉니다.
+
+**크로뮴은 이 약속을 지키지 않습니다.** 빈 편집창에 붙여넣으면 첫 줄을 `<div>` 없이
+맨 글자 노드로 둡니다. 그러면 칸이 하나 모자라 줄 번호가 통째로 밀리고,
+중간부터 열 때 엉뚱한 줄에서 시작합니다(실측 원고 8줄 / 칸 7개).
+
+`app.js` 의 `normalizeEditor()` 가 입력마다 이 구조를 바로잡습니다. 글자 노드를
+그대로 옮기므로 커서는 따라옵니다. **이 함수를 빼거나 호출을 지우지 마십시오.**
+
+빈 칸에 `<br>` 을 넣어 주는 것도 같은 함수가 합니다. `<div></div>` 는 높이가 0 이라
+눈에서 사라집니다 — 원고 줄 수는 맞는데 화면에서만 빈 줄이 없어 보입니다.
+
+### 워드에서 붙여넣으면 `\r` 이 글자로 남습니다
+
+워드는 줄바꿈을 `\r\n` 으로 줍니다. **Windows 크로뮴의 `insertText` 는 `\n` 으로만 줄을
+나누고 `\r` 은 글자로 남깁니다.** 그래서
+
+- 빈 줄이 `\r` 한 글자짜리 칸이 되어 **높이 0** 으로 사라지고
+- 글자가 있는 줄도 끝에 보이지 않는 `\r` 이 하나씩 붙습니다 (글자수가 틀어집니다)
+
+붙여넣기 처리에서 `\r` 을 걷어냅니다. 다른 경로로 글이 들어오는 길을 만들 때도
+같은 처리를 하십시오.
+
+### 보존본 왕복은 반드시 '제자리' 여야 합니다
+
+`rtToFile` → `rtFromFile` 을 여러 번 돌려도 줄이 늘지 않아야 합니다.
+v3.2.0 부터 v3.4.2 까지 여기가 깨져 있어, **열 때마다 원고가 배로 불어났습니다**
+(4줄 → 10 → 23 → 51 → 111). 저장 파일 머리말의 `<title>` 과 태그 사이 줄바꿈을
+원고 글자로 읽은 탓입니다.
+
+파일 형식이나 `rtParse` 를 건드렸으면 이것부터 확인하십시오.
+
+```js
+let l = ['가', '', '나'];
+for (let i = 0; i < 8; i++) l = rtFromFile(rtToFile(l));   // 8번 돌려도 3줄이어야 한다
+```
+
+`rtUnbloat()` 는 그때 불어난 보존본을 되살리는 장치입니다. 사람이 만든 빈 줄은
+`<div><br></div>`, 찌꺼기는 줄바꿈만 든 `<div>` 라 파일 모양으로 가릅니다.
+**옛 보존본을 쓰는 사람이 남아 있는 한 지우지 마십시오.**
+
 ### 색 있는 원고 — richtext.js 는 보안 경계다
 
 편집창과 주행 화면이 `innerHTML` 을 씁니다. 파일·붙여넣기로 들어온 원고는
@@ -322,8 +389,8 @@ wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 
 
 ### 문서
 
-- [x] 사용설명서 PDF — v3.4.0 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
-- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.0 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
+- [x] 사용설명서 PDF — v3.4.5 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
+- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.5 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
 - [x] GitHub 업로드 — 공개 저장소 · 릴리스 운영 중 (`GITHUB.md`)
 
 문서는 `npm run build:docs` 로 다시 만듭니다. 결과물은 저장소 바깥 `../문서/` 에 나오고,
@@ -334,6 +401,9 @@ wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 
 만들 때마다 PDF 의 생성 시각이 바뀌어 내용이 같아도 git 에 변경으로 잡힙니다.
 설명서를 고치지 않았다면 `git checkout -- docs/CHOFLIX_PROMPTER_Manual.pdf` 로 되돌리십시오. 기능을 바꿀 때 설명서도 함께 고치십시오 —
 v3.0.1 에서 v3.4.0 까지 설명서가 따라오지 못해 한꺼번에 고쳐야 했습니다.
+
+`../문서/` 는 NAS 에 자모를 풀어(NFD) 적힌 이름으로 있습니다. 합쳐진 꼴(NFC)로 만들려 들면
+`ENOENT` 가 나므로, `build-docs.mjs` 가 이미 있는 쪽을 찾아 씁니다. 이 분기를 지우지 마십시오.
 
 ### 기능 후보
 

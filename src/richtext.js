@@ -47,18 +47,39 @@ function rtParse(html) {
   let cur = '';
   const push = () => { lines.push(cur); cur = ''; };
 
+  // 태그 사이의 줄바꿈은 서식이지 글자가 아니다
+  const spacer = n => n.nodeType === 3 && /^\s*$/.test(n.textContent) && /[\n\r]/.test(n.textContent);
+  const skippable = n => n.nodeType === 8 || spacer(n) || (n.nodeType !== 1 && n.nodeType !== 3);
+  /** 제 부모 안에서 사실상 마지막 자식인가 */
+  const lastInParent = n => {
+    for (let x = n.nextSibling; x; x = x.nextSibling) if (!skippable(x)) return false;
+    return true;
+  };
+
   (function walk(node, color) {
     for (const n of node.childNodes) {
       if (n.nodeType === 3) {                       // 글자
-        const t = rtEsc(n.textContent);
+        const raw = n.textContent;
+        // 태그 사이의 줄바꿈은 서식이지 글자가 아니다. 저장 파일은 줄마다 <div> 를
+        // 한 줄씩 써 두므로, 이것을 글자로 받으면 열 때마다 빈 줄이 불어난다.
+        // (실측: 4줄 원고가 10 → 23 → 51 → 111 줄로 커졌다)
+        // 줄 가운데에 끼어 있던 것은 브라우저가 그러듯 공백 하나로 바꾼다.
+        if (/^\s*$/.test(raw) && /[\n\r]/.test(raw)) { if (cur) cur += ' '; continue; }
+        // 줄은 블록과 <br> 로만 나뉜다. 글자 안에 남은 줄바꿈까지 줄로 세면
+        // '편집창의 div 한 개 = 원고 한 줄' 이 깨져, 중간부터 열 때 엉뚱한 줄로 간다.
+        const t = rtEsc(raw.replace(/[\r\n]+/g, ' '));
         if (!t) continue;
         cur += color ? `<span style="color:${color}">${t}</span>` : t;
         continue;
       }
       if (n.nodeType !== 1) continue;
       const tag = n.tagName;
-      if (tag === 'BR') { push(); continue; }
-      if (tag === 'SCRIPT' || tag === 'STYLE') continue;   // 글자조차 버린다
+      // <div><br></div> 는 '빈 줄 하나'다. 끝에 붙은 br 까지 줄로 세면
+      // 블록이 닫히면서 한 줄을 더 밀어, 빈 줄이 열 때마다 배로 늘어난다.
+      if (tag === 'BR') { if (!lastInParent(n)) push(); continue; }
+      // 글자조차 버린다. TITLE 은 저장 파일 머리말이라 원고에 섞이면 안 된다 —
+      // body 안에 쓰여 있으면 파서가 글자로 남기기 때문에 이름으로 막는다.
+      if (/^(SCRIPT|STYLE|TITLE|META|LINK|HEAD)$/.test(tag)) continue;
       const block = /^(DIV|P|LI|TR|H[1-6]|SECTION|ARTICLE|BLOCKQUOTE)$/.test(tag);
       if (block && cur) push();
       // 안쪽 색이 바깥 색을 덮는다
@@ -98,7 +119,38 @@ function rtFromFile(content) {
   if (!/<(div|span|br|p|body|html)\b/i.test(s)) {       // 평범한 txt
     return s.replace(/\r\n?/g, '\n').split('\n').map(rtEsc);
   }
-  return rtParse(s);
+  // 사람이 만든 빈 줄 하나가 옛 코드에서는 여러 줄로 불어났다. 그것까지 되돌리려면
+  // 빈 줄을 모아야 하는데, 멀쩡한 원고에 그랬다가는 일부러 띄운 줄을 망친다.
+  // 그래서 '망가진 파일이라는 증거'가 있을 때만 모은다.
+  const damaged = RE_SPACER_DIV.test(s) || RE_TITLE_DIV.test(s);
+  const lines = rtParse(rtUnbloat(s));
+  return damaged ? rtOneBlank(lines) : lines;
+}
+
+/** 연달아 붙은 빈 줄을 한 줄로. 망가진 보존본을 되살릴 때만 쓴다. */
+function rtOneBlank(lines) {
+  return lines.filter((l, i) => l !== '' || i === 0 || lines[i - 1] !== '');
+}
+
+/**
+ * v3.2 ~ v3.4.2 가 남긴 보존본을 되살린다.
+ *
+ * 그때는 저장 파일의 <title> 과 태그 사이 줄바꿈이 원고 글자로 읽혔다.
+ * 그래서 열고 저장할 때마다 'CHOFLIX PROMPTER 원고' 줄과 빈 줄이 한 벌씩
+ * 더 붙어 원고가 배로 불어났다(실측 4줄 → 10 → 23 → 51 → 111).
+ * 읽는 쪽은 고쳤지만, 이미 불어난 채로 저장된 파일은 여기서 걷어내야 한다.
+ *
+ * 파일 모양으로 가른다 — 사람이 만든 빈 줄은 <div><br></div> 이고,
+ * 찌꺼기는 줄바꿈만 든 <div> 다. 공백만 친 줄은 줄바꿈이 없으므로 남는다.
+ * 우리가 쓴 파일에만 적용한다. 붙여넣기로 들어온 HTML 은 rtParse 가 그대로 받는다.
+ */
+const RE_SPACER_DIV = /<div>[^\S\r\n]*[\r\n][\s]*<\/div>/i;
+const RE_TITLE_DIV  = /<div>\s*CHOFLIX PROMPTER 원고\s*<\/div>/i;
+
+function rtUnbloat(s) {
+  return s
+    .replace(new RegExp(RE_SPACER_DIV.source, 'gi'), '')
+    .replace(new RegExp(RE_TITLE_DIV.source, 'gi'), '');
 }
 
 /**
@@ -155,5 +207,5 @@ function rtSetColor(line, from, to, color) {
 }
 
 if (typeof module !== 'undefined')
-  module.exports = { RT_COLORS, rtEsc, rtColor, rtParse, rtPlain, rtToEditor, rtToFile, rtFromFile,
+  module.exports = { RT_COLORS, rtEsc, rtColor, rtParse, rtPlain, rtToEditor, rtToFile, rtFromFile, rtUnbloat,
                      rtToRuns, rtFromRuns, rtSetColor };

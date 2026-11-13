@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| 현재 버전 | **v3.4.9 (Electron)** — 이 저장소 |
+| 현재 버전 | **v3.4.10 (Electron)** — 이 저장소 |
 | 이전 버전 | v2.7 (C# WPF) — 별도 보관, 참고용 |
 | 대상 OS | Windows 10 / 11 (주), macOS Apple Silicon (v3.4~) |
 
@@ -404,8 +404,8 @@ wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 
 
 ### 문서
 
-- [x] 사용설명서 PDF — v3.4.9 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
-- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.9 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
+- [x] 사용설명서 PDF — v3.4.10 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
+- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.10 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
 - [x] GitHub 업로드 — 공개 저장소 · 릴리스 운영 중 (`GITHUB.md`)
 
 문서는 `npm run build:docs` 로 다시 만듭니다. 결과물은 저장소 바깥 `../문서/` 에 나오고,

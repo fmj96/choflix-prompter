@@ -34,16 +34,19 @@ html,body{height:100%;overflow:hidden;background:var(--console);color:var(--ink)
 .cue i.l{left:10px;border-left-color:var(--cue);border-right:0}
 .cue i.r{right:10px;border-right-color:var(--cue);border-left:0}
 /* 출연자가 보라고 띄우는 시계다.
-   이름(누적 · 잔여)은 작게, 숫자는 크게. 평소에는 어느 줄도 굵지 않다 —
-   굵기는 끝이 가까워졌다는 신호로만 쓴다.
+   녹화 중에는 거슬리면 안 된다. 그래서 평소에는 일부러 흐리게 둔다 —
+   보려고 하면 읽히되 눈이 먼저 가지는 않는 정도다.
+   그 자리가 비어 있어야 끝머리의 강조가 강조로 느껴진다.
    그림자는 밝은 배경을 골랐을 때 글자가 묻히지 않게 하는 것이다. */
 .hud{position:absolute;top:20px;right:26px;text-align:right;font-family:var(--mono);
-  color:rgba(255,255,255,.8);text-shadow:0 1px 2px rgba(0,0,0,.6);
+  color:rgba(255,255,255,.42);text-shadow:0 1px 2px rgba(0,0,0,.6);
   pointer-events:none;line-height:1.25}
-.hud b{font-weight:400;font-size:13px;opacity:.75;margin-right:10px}
-.hud span{font-size:22px;font-weight:400}
+.hud b{font-weight:400;font-size:13px;opacity:.8;margin-right:10px}
+.hud span{font-size:20px;font-weight:400}
 /* 잔여가 10초 이하로 내려가면 '누적' 옆의 숫자만 이렇게 바뀐다.
    누적은 곧 완성본 길이라, 끝머리에 그 값을 확인하게 하려는 것이다.
+   흐린 흰색 → 또렷한 노랑 + 굵게. 밝기까지 두 배 넘게 뛰므로
+   곁눈으로도 '지금 바뀌었다' 가 잡힌다.
    이름은 건드리지 않는다 — 바뀌는 곳이 한 군데여야 눈이 바로 간다. */
 .hud div.warn span{color:#FFD24B;font-weight:700;opacity:1}
 

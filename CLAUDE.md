@@ -12,7 +12,7 @@
 
 | | |
 |---|---|
-| 현재 버전 | **v3.4.5 (Electron)** — 이 저장소 |
+| 현재 버전 | **v3.4.8 (Electron)** — 이 저장소 |
 | 이전 버전 | v2.7 (C# WPF) — 별도 보관, 참고용 |
 | 대상 OS | Windows 10 / 11 (주), macOS Apple Silicon (v3.4~) |
 
@@ -288,6 +288,21 @@ for (let i = 0; i < 8; i++) l = rtFromFile(rtToFile(l));   // 8번 돌려도 3�
 `<div><br></div>`, 찌꺼기는 줄바꿈만 든 `<div>` 라 파일 모양으로 가릅니다.
 **옛 보존본을 쓰는 사람이 남아 있는 한 지우지 마십시오.**
 
+### 화면에 그림을 넣을 때 `data:` 주소는 CSP 에 막힙니다
+
+`index.html` · `stage.html` 의 CSP 가 `default-src 'self'` 입니다. `img-src` 를 따로
+적지 않았으므로 **`data:` 주소의 그림은 전부 막힙니다.** 막혀도 화면에는 아무 말이
+없습니다 — 커서라면 OS 기본 모양이, 그림이라면 빈 자리가 나올 뿐입니다.
+
+v3.4.7 의 커서가 그렇게 샜습니다. Mac 의 브라우저에서 시험했을 때는 멀쩡히
+읽혔습니다. **그 시험 페이지에는 CSP 가 없었기 때문입니다.** 앱이 거는 제약을
+빼놓고 시험하면 아무것도 증명하지 못합니다.
+
+그림은 `src/` 에 파일로 두고 상대 주소로 거십시오 (`url("cursor-hand.png")`).
+`'self'` 안에 들어가므로 CSP 를 넓히지 않아도 됩니다.
+
+SVG 커서는 또 따로 의심하십시오. 확인한 것은 PNG 입니다.
+
 ### 색 있는 원고 — richtext.js 는 보안 경계다
 
 편집창과 주행 화면이 `innerHTML` 을 씁니다. 파일·붙여넣기로 들어온 원고는
@@ -389,8 +404,8 @@ wine 의 바탕화면은 Mac 의 실제 바탕화면과 연결되어 있으니, 
 
 ### 문서
 
-- [x] 사용설명서 PDF — v3.4.5 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
-- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.5 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
+- [x] 사용설명서 PDF — v3.4.8 기준 21쪽. `docs-src/manual.html` 이 원본, `docs/CHOFLIX_PROMPTER_Manual.pdf` 가 GitHub 공개본입니다
+- [x] 단축키 스티커 JPG(7×7cm, 600dpi) — v3.4.8 기준(`F8` 포함). `docs-src/sticker.html` 이 원본, `docs/CHOFLIX_PROMPTER_Shortcuts_7x7cm.jpg` 가 공개본입니다
 - [x] GitHub 업로드 — 공개 저장소 · 릴리스 운영 중 (`GITHUB.md`)
 
 문서는 `npm run build:docs` 로 다시 만듭니다. 결과물은 저장소 바깥 `../문서/` 에 나오고,

@@ -57,7 +57,6 @@ class Engine {
       i.style.borderLeftColor = i.classList.contains('l') ? s.cue : 'transparent';
       i.style.borderRightColor = i.classList.contains('r') ? s.cue : 'transparent';
     });
-    this.el.hud.style.color = this._fade(s.cue, .85);   // 출연자용 시계 — 흐리면 띄운 뜻이 없다
     this.el.hud.style.display = s.talentTimer ? '' : 'none';
 
     const rebuilt = first || !prev || prev.text !== s.text;
@@ -216,6 +215,11 @@ class Engine {
     const total = max / Math.max(1, this.s.speed);
     this.el.hudElapsed.textContent = fmt(this.netSeconds);
     this.el.hudRemain.textContent = fmt(remain);
+    // 잔여 10초 이하 — 출연자가 곁눈으로도 알아채야 하므로 노란 굵은 글씨로 바꾼다.
+    // 기준은 '보이는 숫자'다(fmt 가 버림하므로 같은 floor 를 쓴다). 실수값으로 재면
+    // 10.5초에 이미 00:00:10 이 떠 있는데 흰색이라, 같은 숫자가 흰색이었다 노랑이 된다.
+    // 원고가 비어 있으면(max 0) 잔여도 0 이라 늘 노랗게 되므로 걸러 낸다.
+    this.el.hudRemain.parentElement.classList.toggle('warn', max > 0 && Math.floor(remain) <= 10);
     this.onReport({
       kind: 'state', running: this.running, offset: this.offset,
       elapsed: this.netSeconds, running_s: this.runSeconds,

@@ -215,11 +215,13 @@ class Engine {
     const total = max / Math.max(1, this.s.speed);
     this.el.hudElapsed.textContent = fmt(this.netSeconds);
     this.el.hudRemain.textContent = fmt(remain);
-    // 잔여 10초 이하 — 출연자가 곁눈으로도 알아채야 하므로 노란 굵은 글씨로 바꾼다.
+    // 잔여가 10초 이하로 내려가면 '누적' 줄을 노란 굵은 글씨로 바꾼다.
+    // 바뀌는 것은 누적이고, 보는 기준은 잔여다 — 누적은 곧 완성본 길이라
+    // 끝머리에 그 값을 확인하게 하려는 것이다.
     // 기준은 '보이는 숫자'다(fmt 가 버림하므로 같은 floor 를 쓴다). 실수값으로 재면
-    // 10.5초에 이미 00:00:10 이 떠 있는데 흰색이라, 같은 숫자가 흰색이었다 노랑이 된다.
+    // 10.5초에 이미 00:00:10 이 떠 있는데 아직 안 바뀌어, 같은 숫자가 두 모습이 된다.
     // 원고가 비어 있으면(max 0) 잔여도 0 이라 늘 노랗게 되므로 걸러 낸다.
-    this.el.hudRemain.parentElement.classList.toggle('warn', max > 0 && Math.floor(remain) <= 10);
+    this.el.hudElapsed.parentElement.classList.toggle('warn', max > 0 && Math.floor(remain) <= 10);
     this.onReport({
       kind: 'state', running: this.running, offset: this.offset,
       elapsed: this.netSeconds, running_s: this.runSeconds,

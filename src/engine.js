@@ -57,7 +57,7 @@ class Engine {
       i.style.borderLeftColor = i.classList.contains('l') ? s.cue : 'transparent';
       i.style.borderRightColor = i.classList.contains('r') ? s.cue : 'transparent';
     });
-    this.el.hud.style.color = this._fade(s.cue, .35);
+    this.el.hud.style.color = this._fade(s.cue, .85);   // 출연자용 시계 — 흐리면 띄운 뜻이 없다
     this.el.hud.style.display = s.talentTimer ? '' : 'none';
 
     const rebuilt = first || !prev || prev.text !== s.text;
